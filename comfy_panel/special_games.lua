@@ -242,25 +242,13 @@ local function generate_vietnam(field_size, mines_count, forest_density)
 			i.rotatable = false
 		end
 		market.operable = true
-		--[[
-		for i = 1, mines_count do
-			local landmine = surface.create_entity {
-				name = "land-mine",
-				position = {math.random(-size_x / 2, size_x / 2), math.random(math.min(offset * 40, size_y * offset), math.max(offset * 40, size_y * offset))},
-				force = game.forces[v.force.name .. "_biters"]
-			}
-			game.print(table.concat({landmine.position.x, ", ", landmine.position.y}))
 		
-		end	
-		]]
 		spawn_mines(v, field_size, mines_count)	
 	end
-    --global.special_games_variables["minefield_x"] = size_x
-	--global.special_games_variables["minefield_y"] = size_y
 	global.special_games_variables["field_size"] = field_size
 	global.special_games_variables["forest_density"] = math.clamp(forest_density, 0, 100)
 	global.active_special_games["vietnam"] = true
-	game.print("Special game turtle is being generated!", Color.warning)
+	game.print("Special game Vietnam is being generated!", Color.warning)
 end
 
 function Public.vietnam_trees(surface, left_top_x, left_top_y)
@@ -302,35 +290,24 @@ end
 local function on_market_item_purchased(event)
 	local player = game.get_player(event.player_index)
 	local enemy = Tables.enemy_team_of[player.force.name]
-	--local size_x = global.special_games_variables["minefield_x"]
-	--local size_y = global.special_games_variables["minefield_y"]
 	local field_size = global.special_games_variables["field_size"]
 	local count = event.count
 	local surface = game.surfaces[global.bb_surface_name]
-	--[[
-	local offset = 1
-	if enemy == "north" then offset = -1 end
-	for i = 1, event.count do
-		local landmine = surface.create_entity {
-			name = "land-mine",
-			position = {math.random(-size_x / 2, size_x / 2), math.random(math.min(offset * 40, size_y * offset), math.max(offset * 40, size_y * offset))},
-			force = game.forces[enemy .. "_biters"]
-		}
-		--game.print(table.concat({landmine.position.x, ", ", landmine.position.y}))
-	end
-	]]
+	game.print(player.name .. " purchased " .. event.count .. " mines!")
+	
 	local silo_mines = math.random(0, count)
 	spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, silo_mines)
 	game.print("Spawned mines around silo: " .. silo_mines)
-	count = count - silo_mines
-	game.print(player.name .. " purchased " .. event.count .. " mines!")
-	if game.forces[enemy].players ~= nil then
-		game.print("Inside the player part")
-		for player, number in pairs(Utils.lotery(game.forces[enemy].players, event.count)) do
-			game.print("Inside the lottery loop")
-			spawn_mines(player, field_size, number)
+	count = count - silo_mines	
+	if #game.forces[enemy].players ~= 0 then
+		game.print("Enemy team is not empty")
+		
+		local list = Utils.lotery(game.forces[enemy].players, event.count)
+		for k, v in pairs(list) do
+			spawn_mines(k, field_size, v)
+			game.print("Spawning " .. v .. "mines around player " .. k.name)
 		end
-		game.print("Spawned mines arouund players: " .. count)
+		--game.print("Spawned mines around players: " .. count)
 	else
 		spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, count)
 		game.print("Spawned mines around silo again: " .. count)

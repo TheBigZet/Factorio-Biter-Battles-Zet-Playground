@@ -105,12 +105,13 @@ Module.lotery = function(playerlist, pool)
     local a = 0
     local last_player
     for _, player in pairs(playerlist) do
+        
         a = math.random(0, pool)
-        results[player.name] = a
+        results[player] = a
         pool = pool - a
         last_player = player
     end
-    results[last_player.name] = pool + a
+    results[last_player] = pool + a
     return results
 end
 
