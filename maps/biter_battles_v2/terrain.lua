@@ -4,6 +4,7 @@ local BiterRaffle = require "maps.biter_battles_v2.biter_raffle"
 local bb_config = require "maps.biter_battles_v2.config"
 local Functions = require "maps.biter_battles_v2.functions"
 local tables = require "maps.biter_battles_v2.tables"
+local Special_games = require "comfy_panel.special_games"
 
 local spawn_ore = tables.spawn_ore
 local table_insert = table.insert
@@ -426,6 +427,9 @@ function Public.generate(event)
 	generate_river(surface, left_top_x, left_top_y)
 	draw_biter_area(surface, left_top_x, left_top_y)		
 	generate_extra_worm_turrets(surface, left_top)
+	if global.active_special_games["vietnam"] == true then
+		Special_games.vietnam_trees(surface, left_top_x, left_top_y)
+	end
 end
 
 function Public.draw_spawn_circle(surface)

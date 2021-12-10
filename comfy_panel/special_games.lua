@@ -1,5 +1,8 @@
 local Event = require 'utils.event'
 local Color = require 'utils.color_presets'
+local Tables = require 'maps.biter_battles_v2.tables'
+local Utils = require 'utils.utils'
+
 local Public = {}
 global.active_special_games = {}
 global.special_games_variables = {}
@@ -51,6 +54,19 @@ local valid_special_games = {
 			[11] = {name = "eq7", type = "choose-elem-button", elem_type = "item"}
 		},
 		button = {name = "infinity_chest_apply", type = "button", caption = "Apply"}
+	},
+
+	vietnam = {
+		name = {type = "label", caption = "Vietnam", tooltip = "Minefield, artilery, biters hiding in trees and many more!"},
+		config = {
+			[1] = {name = "mines_count", type = "textfield", text = "300", numeric = true, width = 60, tooltip = "Number of mines to be generated at start. Be careful with high values lol"},
+			[2] = {name = "label1", type = "label", caption = "x = "},
+			[3] = {name = "size_x", type = "textfield", text = "400", numeric = true, width = 60, tooltip = "X dimension of the minefield, for silo and for players"},
+			[4] = {name = "label2", type = "label", caption = " y = "},
+			[5] = {name = "size_y", type = "textfield", text = "400", numeric = true, width = 60, tooltip = "Y dimension of the minefield, for silo and for players"},
+			[6] = {name = "forest_density", type = "textfield", text = "50", numeric = true, width = 40, tooltip = "Forest density: 0-100"},
+		},
+		button = {name = "vietnam_apply", type = "button", caption = "Apply"}
 	}
 
 }
@@ -147,6 +163,180 @@ local function generate_infinity_chest(separate_chests, operable, gap, eq)
 	global.active_special_games["infinity_chest"] = true
 end
 
+local function spawn_mines(center_entity, field_size, count)	--field_size must have structure {x = _, y = _}
+	local surface = center_entity.surface
+	local pos_x, pos_y, max_y, min_y
+
+	if center_entity.force.name == "north" then
+		game.print("generating for north")
+		if center_entity.position.y + (field_size.y / 2) > -40 then
+			max_y = -40
+			min_y = center_entity.position.y - (field_size.y / 2)
+		else
+			max_y = center_entity.position.y + (field_size.y / 2)
+			min_y = center_entity.position.y - (field_size.y / 2)
+		end
+		game.print(min_y .. "   " .. max_y)
+	else
+		game.print("generating for south")
+		if center_entity.position.y - (field_size.y / 2) < 40 then
+			max_y = center_entity.position.y + (field_size.y / 2)
+			min_y = 40
+		else
+			max_y = center_entity.position.y + (field_size.y / 2)
+			min_y = center_entity.position.y - (field_size.y / 2)
+		end	
+		game.print(min_y .. "   " .. max_y)
+	end
+	
+	for i = 1, count do
+		pos_x = math.random(center_entity.position.x - (field_size.x / 2), center_entity.position.x + (field_size.x / 2))
+		pos_y = math.random(min_y, max_y)
+		surface.create_entity {
+			name = "land-mine",
+			position = {pos_x , pos_y},
+			force = game.forces[center_entity.force.name .. "_biters"]
+		}
+	end
+end
+
+local function generate_vietnam(field_size, mines_count, forest_density)
+	local surface = game.surfaces[global.bb_surface_name]
+	local silos = surface.find_entities_filtered {name = "rocket-silo"}
+	for _, v in ipairs(silos) do
+		local offset = -1
+		if v.force.name == "south" then offset = 1 end
+		local enemy = Tables.enemy_team_of[v.force.name]
+
+		local market = surface.create_entity {
+			name = "market",
+			position = {v.position.x + 2, v.position.y - offset * 6},
+			force = v.force
+		}
+		local ammo_chest = surface.create_entity {
+			name = "infinity-chest",
+			position = {v.position.x, v.position.y - offset * 6},
+			force = v.force
+		}
+		ammo_chest.set_infinity_container_filter(1, {name = "artillery-shell", index = 1, count = 1})
+		ammo_chest.set_infinity_container_filter(2, {name = "coal", index = 1, count = 1})
+		local inserter = surface.create_entity {
+			name = "burner-inserter",
+			direction = defines.direction.east,
+			position = {v.position.x - 1, v.position.y - offset * 6},
+			force = v.force
+		}
+		local arty = surface.create_entity {
+			name = "artillery-turret",
+			position = {v.position.x - 3, v.position.y - offset * 6},
+			force = v.force
+		}
+		market.add_market_item {
+			price = {{"chemical-science-pack", 10}},
+			offer = {type = "nothing", effect_description = "Add mines to team " .. Tables.enemy_team_of[v.force.name]}
+		}
+		for _, i in pairs({market, arty, ammo_chest, inserter}) do
+			i.destructible = false
+			i.operable = false
+			i.minable = false
+			i.rotatable = false
+		end
+		market.operable = true
+		--[[
+		for i = 1, mines_count do
+			local landmine = surface.create_entity {
+				name = "land-mine",
+				position = {math.random(-size_x / 2, size_x / 2), math.random(math.min(offset * 40, size_y * offset), math.max(offset * 40, size_y * offset))},
+				force = game.forces[v.force.name .. "_biters"]
+			}
+			game.print(table.concat({landmine.position.x, ", ", landmine.position.y}))
+		
+		end	
+		]]
+		spawn_mines(v, field_size, mines_count)	
+	end
+    --global.special_games_variables["minefield_x"] = size_x
+	--global.special_games_variables["minefield_y"] = size_y
+	global.special_games_variables["field_size"] = field_size
+	global.special_games_variables["forest_density"] = math.clamp(forest_density, 0, 100)
+	global.active_special_games["vietnam"] = true
+	game.print("Special game turtle is being generated!", Color.warning)
+end
+
+function Public.vietnam_trees(surface, left_top_x, left_top_y)
+	--[[
+	local trees = {
+		"dead-dry-hairy-tree",
+		"dead-grey-trunk",
+		"dead-tree-desert",
+		"dry-hairy-tree",
+		"dry-tree",
+		"tree-01",
+		"tree-02",
+		"tree-02-red",
+		"tree-03",
+		"tree-04",
+		"tree-05",
+		"tree-06",
+		"tree-06-brown",
+		"tree-07",
+		"tree-08",
+		"tree-08-brown",
+		"tree-08-red",
+		"tree-09",
+		"tree-09-brown",
+		"tree-09-red",
+		}
+	for i=1, global.special_games_variables["forest_density"]*0.01*32*32 do
+		surface.create_entity{
+			name = trees[math.random(1,20)],
+			position = {math.random(left_top_x*32, left_top_x*32+32), math.random(left_top_y*32, left_top_y*32+32)}
+		}
+	
+	end
+	]]
+end
+
+
+
+local function on_market_item_purchased(event)
+	local player = game.get_player(event.player_index)
+	local enemy = Tables.enemy_team_of[player.force.name]
+	--local size_x = global.special_games_variables["minefield_x"]
+	--local size_y = global.special_games_variables["minefield_y"]
+	local field_size = global.special_games_variables["field_size"]
+	local count = event.count
+	local surface = game.surfaces[global.bb_surface_name]
+	--[[
+	local offset = 1
+	if enemy == "north" then offset = -1 end
+	for i = 1, event.count do
+		local landmine = surface.create_entity {
+			name = "land-mine",
+			position = {math.random(-size_x / 2, size_x / 2), math.random(math.min(offset * 40, size_y * offset), math.max(offset * 40, size_y * offset))},
+			force = game.forces[enemy .. "_biters"]
+		}
+		--game.print(table.concat({landmine.position.x, ", ", landmine.position.y}))
+	end
+	]]
+	local silo_mines = math.random(0, count)
+	spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, silo_mines)
+	game.print("Spawned mines around silo: " .. silo_mines)
+	count = count - silo_mines
+	game.print(player.name .. " purchased " .. event.count .. " mines!")
+	if game.forces[enemy].players ~= nil then
+		game.print("Inside the player part")
+		for player, number in pairs(Utils.lotery(game.forces[enemy].players, event.count)) do
+			game.print("Inside the lottery loop")
+			spawn_mines(player, field_size, number)
+		end
+		game.print("Spawned mines arouund players: " .. count)
+	else
+		spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, count)
+		game.print("Spawned mines around silo again: " .. count)
+	end
+end
+
 local create_special_games_panel = (function(player, frame)
 	frame.clear()
 	frame.add{type = "label", caption = "Configure and apply special games here"}.style.single_line = false
@@ -222,7 +412,15 @@ local function on_gui_click(event)
 
 		generate_infinity_chest(separate_chests, operable, gap, eq)
 
+	elseif element.name == "vietnam_confirm" then
+		local field_size = {x = tonumber(config["size_x"].text), y = tonumber(config["size_y"].text)}
+		local mines_count = config["mines_count"].text
+		local forest_density = tonumber(config["forest_density"].text)
+
+		generate_vietnam(field_size, mines_count, forest_density)
+
 	end
+
 	if string.find(element.name, "_confirm") or element.name == "cancel" then
 		element.parent.parent.children[3].visible = true -- shows back Apply button
 		element.parent.destroy() -- removes confirm/Cancel buttons
@@ -231,5 +429,6 @@ end
 comfy_panel_tabs['Special games'] = {gui = create_special_games_panel, admin = true}
 
 Event.add(defines.events.on_gui_click, on_gui_click)
+Event.add(defines.events.on_market_item_purchased, on_market_item_purchased)
 return Public
 

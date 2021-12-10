@@ -98,6 +98,21 @@ Module.ternary = function(c, t, f)
     end
 end
 
+-- distriutes the pool across players randomly
+Module.lotery = function(playerlist, pool)
+    game.print("lottery function")
+    local results = {}
+    local a = 0
+    local last_player
+    for _, player in pairs(playerlist) do
+        a = math.random(0, pool)
+        results[player.name] = a
+        pool = pool - a
+        last_player = player
+    end
+    results[last_player.name] = pool + a
+    return results
+end
 
 local minutes_to_ticks = 60 * 60
 local hours_to_ticks = 60 * 60 * 60
