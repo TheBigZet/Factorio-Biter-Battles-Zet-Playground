@@ -55,16 +55,22 @@ local valid_special_games = {
 		},
 		button = {name = "infinity_chest_apply", type = "button", caption = "Apply"}
 	},
-
+	
 	vietnam = {
-		name = {type = "label", caption = "Vietnam", tooltip = "Minefield, artilery, biters hiding in trees and many more!"},
+		name = {type = "label", caption = "Vietnam War", tooltip = "Minefield, artilery, biters hiding in trees and many more!"},
 		config = {
-			[1] = {name = "mines_count", type = "textfield", text = "300", numeric = true, width = 60, tooltip = "Number of mines to be generated at start. Be careful with high values lol"},
-			[2] = {name = "label1", type = "label", caption = "x = "},
-			[3] = {name = "size_x", type = "textfield", text = "400", numeric = true, width = 60, tooltip = "X dimension of the minefield, for silo and for players"},
-			[4] = {name = "label2", type = "label", caption = " y = "},
-			[5] = {name = "size_y", type = "textfield", text = "400", numeric = true, width = 60, tooltip = "Y dimension of the minefield, for silo and for players"},
-			[6] = {name = "forest_density", type = "textfield", text = "50", numeric = true, width = 40, tooltip = "Forest density: 0-100"},
+			[1] = {name = "mines_count", type = "textfield", text = "300", numeric = true, width = 40, tooltip = "Number of mines to be generated at start. Be careful with high values lol"},
+			[2] = {name = "size_x", type = "textfield", text = "400", numeric = true, width = 40, tooltip = "X dimension of the minefield, for silo and for players"},
+			[3] = {name = "size_y", type = "textfield", text = "400", numeric = true, width = 40, tooltip = "Y dimension of the minefield, for silo and for players"},
+			[4] = {name = "forest_density", type = "textfield", text = "50", numeric = true, width = 30, tooltip = "Forest density: 0-100"},
+			[5] = {name = "item1", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
+			[6] = {name = "item_count1", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"},
+			[7] = {name = "item2", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
+			[8] = {name = "item_count2", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"},
+			[9] = {name = "item3", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
+			[10] = {name = "item_count3", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"},
+			[11] = {name = "item4", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
+			[12] = {name = "item_count4", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"}			
 		},
 		button = {name = "vietnam_apply", type = "button", caption = "Apply"}
 	}
@@ -176,7 +182,7 @@ local function spawn_mines(center_entity, field_size, count)	--field_size must h
 			max_y = center_entity.position.y + (field_size.y / 2)
 			min_y = center_entity.position.y - (field_size.y / 2)
 		end
-		game.print(min_y .. "   " .. max_y)
+		--game.print(min_y .. "   " .. max_y)
 	else
 		game.print("generating for south")
 		if center_entity.position.y - (field_size.y / 2) < 40 then
@@ -186,7 +192,7 @@ local function spawn_mines(center_entity, field_size, count)	--field_size must h
 			max_y = center_entity.position.y + (field_size.y / 2)
 			min_y = center_entity.position.y - (field_size.y / 2)
 		end	
-		game.print(min_y .. "   " .. max_y)
+		--game.print(min_y .. "   " .. max_y)
 	end
 	
 	for i = 1, count do
@@ -200,7 +206,7 @@ local function spawn_mines(center_entity, field_size, count)	--field_size must h
 	end
 end
 
-local function generate_vietnam(field_size, mines_count, forest_density)
+local function generate_vietnam(field_size, mines_count, forest_density, prices)
 	local surface = game.surfaces[global.bb_surface_name]
 	local silos = surface.find_entities_filtered {name = "rocket-silo"}
 	for _, v in ipairs(silos) do
@@ -231,10 +237,13 @@ local function generate_vietnam(field_size, mines_count, forest_density)
 			position = {v.position.x - 3, v.position.y - offset * 6},
 			force = v.force
 		}
-		market.add_market_item {
-			price = {{"chemical-science-pack", 10}},
-			offer = {type = "nothing", effect_description = "Add mines to team " .. Tables.enemy_team_of[v.force.name]}
-		}
+		for a, p in pairs(prices) do
+			if p[1] == nil then break end
+			market.add_market_item {
+				price = {p},
+				offer = {type = "nothing", effect_description = "Add mines to team " .. Tables.enemy_team_of[v.force.name]}
+			}
+		end
 		for _, i in pairs({market, arty, ammo_chest, inserter}) do
 			i.destructible = false
 			i.operable = false
@@ -242,14 +251,14 @@ local function generate_vietnam(field_size, mines_count, forest_density)
 			i.rotatable = false
 		end
 		market.operable = true
-		
-		spawn_mines(v, field_size, mines_count)	
+		spawn_mines(v, field_size, mines_count)
 	end
 	global.special_games_variables["field_size"] = field_size
 	global.special_games_variables["forest_density"] = math.clamp(forest_density, 0, 100)
 	global.active_special_games["vietnam"] = true
-	game.print("Special game Vietnam is being generated!", Color.warning)
+	game.print("Special game Vietnam War is being generated!", Color.warning)
 end
+
 
 function Public.vietnam_trees(surface, left_top_x, left_top_y)
 	--[[
@@ -288,29 +297,30 @@ end
 
 
 local function on_market_item_purchased(event)
-	local player = game.get_player(event.player_index)
-	local enemy = Tables.enemy_team_of[player.force.name]
-	local field_size = global.special_games_variables["field_size"]
-	local count = event.count
-	local surface = game.surfaces[global.bb_surface_name]
-	game.print(player.name .. " purchased " .. event.count .. " mines!")
-	
-	local silo_mines = math.random(0, count)
-	spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, silo_mines)
-	game.print("Spawned mines around silo: " .. silo_mines)
-	count = count - silo_mines	
-	if #game.forces[enemy].players ~= 0 then
-		game.print("Enemy team is not empty")
+	if global.active_special_games["vietnam"] - true then
+		local player = game.get_player(event.player_index)
+		local enemy = Tables.enemy_team_of[player.force.name]
+		local field_size = global.special_games_variables["field_size"]
+		local count = event.count
+		local surface = game.surfaces[global.bb_surface_name]
+		game.print(player.name .. " purchased " .. event.count .. " mines!")
 		
-		local list = Utils.lotery(game.forces[enemy].players, event.count)
-		for k, v in pairs(list) do
-			spawn_mines(k, field_size, v)
-			game.print("Spawning " .. v .. "mines around player " .. k.name)
+		local silo_mines = math.random(0, count)	-- randomizing number of mines to be generated around silo
+		spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, silo_mines)
+		game.print("Spawned mines around silo: " .. silo_mines)
+		count = count - silo_mines	-- leftover mines
+		if #game.forces[enemy].players ~= 0 then
+			game.print("Enemy team is not empty")
+			
+			local list = Utils.lotery(game.forces[enemy].players, count)	-- randomizing leftover mines across players
+			for k, v in pairs(list) do
+				spawn_mines(k, field_size, v)
+				game.print("Spawning " .. v .. " mines around player " .. k.name)
+			end
+		else
+			spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, count) 	--spawning leftover mines in case the team is empty
+			game.print("Spawned mines around silo again: " .. count)
 		end
-		--game.print("Spawned mines around players: " .. count)
-	else
-		spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, count)
-		game.print("Spawned mines around silo again: " .. count)
 	end
 end
 
@@ -393,8 +403,14 @@ local function on_gui_click(event)
 		local field_size = {x = tonumber(config["size_x"].text), y = tonumber(config["size_y"].text)}
 		local mines_count = config["mines_count"].text
 		local forest_density = tonumber(config["forest_density"].text)
-
-		generate_vietnam(field_size, mines_count, forest_density)
+		local prices = {
+			[1] = {config["item1"].elem_value, tonumber(config["item_count1"].text)},
+			[2] = {config["item2"].elem_value, tonumber(config["item_count2"].text)},
+			[3] = {config["item3"].elem_value, tonumber(config["item_count3"].text)},
+			[4] = {config["item4"].elem_value, tonumber(config["item_count4"].text)}
+		}
+		
+		generate_vietnam(field_size, mines_count, forest_density, prices)
 
 	end
 

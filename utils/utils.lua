@@ -98,14 +98,13 @@ Module.ternary = function(c, t, f)
     end
 end
 
--- distriutes the pool across players randomly
+-- distriutes the pool across players randomly. playerlist is a list of LuaPlayer
 Module.lotery = function(playerlist, pool)
     game.print("lottery function")
     local results = {}
     local a = 0
     local last_player
-    for _, player in pairs(playerlist) do
-        
+    for _, player in pairs(playerlist) do        
         a = math.random(0, pool)
         results[player] = a
         pool = pool - a
