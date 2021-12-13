@@ -174,7 +174,7 @@ local function spawn_mines(center_entity, field_size, count)	--field_size must h
 	local pos_x, pos_y, max_y, min_y
 
 	if center_entity.force.name == "north" then
-		game.print("generating for north")
+		--game.print("generating for north")
 		if center_entity.position.y + (field_size.y / 2) > -40 then
 			max_y = -40
 			min_y = center_entity.position.y - (field_size.y / 2)
@@ -184,7 +184,7 @@ local function spawn_mines(center_entity, field_size, count)	--field_size must h
 		end
 		--game.print(min_y .. "   " .. max_y)
 	else
-		game.print("generating for south")
+		--game.print("generating for south")
 		if center_entity.position.y - (field_size.y / 2) < 40 then
 			max_y = center_entity.position.y + (field_size.y / 2)
 			min_y = 40
@@ -208,8 +208,8 @@ end
 
 local function generate_vietnam(field_size, mines_count, forest_density, prices)
 	local surface = game.surfaces[global.bb_surface_name]
-	local silos = surface.find_entities_filtered {name = "rocket-silo"}
-	for _, v in ipairs(silos) do
+	local silos = global.rocket_silo
+	for _, v in pairs(global.rocket_silo) do
 		local offset = -1
 		if v.force.name == "south" then offset = 1 end
 		local enemy = Tables.enemy_team_of[v.force.name]
@@ -297,7 +297,7 @@ end
 
 
 local function on_market_item_purchased(event)
-	if global.active_special_games["vietnam"] - true then
+	if global.active_special_games["vietnam"] == true then
 		local player = game.get_player(event.player_index)
 		local enemy = Tables.enemy_team_of[player.force.name]
 		local field_size = global.special_games_variables["field_size"]
@@ -306,20 +306,20 @@ local function on_market_item_purchased(event)
 		game.print(player.name .. " purchased " .. event.count .. " mines!")
 		
 		local silo_mines = math.random(0, count)	-- randomizing number of mines to be generated around silo
-		spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, silo_mines)
-		game.print("Spawned mines around silo: " .. silo_mines)
+		spawn_mines(global.rocket_silo[enemy], field_size, silo_mines)
+		--game.print("Spawned mines around silo: " .. silo_mines)
 		count = count - silo_mines	-- leftover mines
 		if #game.forces[enemy].players ~= 0 then
-			game.print("Enemy team is not empty")
+			--game.print("Enemy team is not empty")
 			
 			local list = Utils.lotery(game.forces[enemy].players, count)	-- randomizing leftover mines across players
 			for k, v in pairs(list) do
 				spawn_mines(k, field_size, v)
-				game.print("Spawning " .. v .. " mines around player " .. k.name)
+				--game.print("Spawning " .. v .. " mines around player " .. k.name)
 			end
 		else
-			spawn_mines(surface.find_entities_filtered{area = {{-40,-100}, {40,100}}, name = "rocket-silo", force = enemy}[1], field_size, count) 	--spawning leftover mines in case the team is empty
-			game.print("Spawned mines around silo again: " .. count)
+			spawn_mines(global.rocket_silo[enemy], field_size, count) 	--spawning leftover mines in case the team is empty
+			--game.print("Spawned mines around silo again: " .. count)
 		end
 	end
 end
