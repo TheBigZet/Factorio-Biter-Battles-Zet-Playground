@@ -208,7 +208,34 @@ end
 
 local function generate_vietnam(field_size, mines_count, forest_density, prices)
 	local surface = game.surfaces[global.bb_surface_name]
-	local silos = global.rocket_silo
+	local trees = {
+		"dead-dry-hairy-tree",
+		"dead-grey-trunk",
+		"dead-tree-desert",
+		"dry-hairy-tree",
+		"dry-tree",
+		"tree-01",
+		"tree-02",
+		"tree-02-red",
+		"tree-03",
+		"tree-04",
+		"tree-05",
+		"tree-06",
+		"tree-06-brown",
+		"tree-07",
+		"tree-08",
+		"tree-08-brown",
+		"tree-08-red",
+		"tree-09",
+		"tree-09-brown",
+		"tree-09-red",
+		}
+	--surface.map_gen_settings.autoplace_controls["trees"] = {frequency = "very-high", size = "very-high"}
+	surface.map_gen_settings.autoplace_controls["trees"] = {frequency = 2, size = 2, density = 1}
+	surface.map_gen_settings.property_expression_names["moisture"] = "1"
+	surface.map_gen_settings.property_expression_names["temperature"] = "25"
+	surface.regenerate_entity(trees)
+	surface.regenerate_decorative()
 	for _, v in pairs(global.rocket_silo) do
 		local offset = -1
 		if v.force.name == "south" then offset = 1 end
@@ -258,43 +285,6 @@ local function generate_vietnam(field_size, mines_count, forest_density, prices)
 	global.active_special_games["vietnam"] = true
 	game.print("Special game Vietnam War is being generated!", Color.warning)
 end
-
-
-function Public.vietnam_trees(surface, left_top_x, left_top_y)
-	--[[
-	local trees = {
-		"dead-dry-hairy-tree",
-		"dead-grey-trunk",
-		"dead-tree-desert",
-		"dry-hairy-tree",
-		"dry-tree",
-		"tree-01",
-		"tree-02",
-		"tree-02-red",
-		"tree-03",
-		"tree-04",
-		"tree-05",
-		"tree-06",
-		"tree-06-brown",
-		"tree-07",
-		"tree-08",
-		"tree-08-brown",
-		"tree-08-red",
-		"tree-09",
-		"tree-09-brown",
-		"tree-09-red",
-		}
-	for i=1, global.special_games_variables["forest_density"]*0.01*32*32 do
-		surface.create_entity{
-			name = trees[math.random(1,20)],
-			position = {math.random(left_top_x*32, left_top_x*32+32), math.random(left_top_y*32, left_top_y*32+32)}
-		}
-	
-	end
-	]]
-end
-
-
 
 local function on_market_item_purchased(event)
 	if global.active_special_games["vietnam"] == true then

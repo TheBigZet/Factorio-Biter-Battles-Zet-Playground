@@ -427,9 +427,6 @@ function Public.generate(event)
 	generate_river(surface, left_top_x, left_top_y)
 	draw_biter_area(surface, left_top_x, left_top_y)		
 	generate_extra_worm_turrets(surface, left_top)
-	if global.active_special_games["vietnam"] == true then
-		Special_games.vietnam_trees(surface, left_top_x, left_top_y)
-	end
 end
 
 function Public.draw_spawn_circle(surface)
