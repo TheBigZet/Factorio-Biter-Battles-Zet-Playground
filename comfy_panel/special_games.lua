@@ -2,6 +2,8 @@ local Event = require 'utils.event'
 local Color = require 'utils.color_presets'
 local Tables = require 'maps.biter_battles_v2.tables'
 local Utils = require 'utils.utils'
+local Terrain = require 'maps.biter_battles_v2.terrain'
+local Biter_raffle = require 'maps.biter_battles_v2.biter_raffle'
 
 local Public = {}
 global.active_special_games = {}
@@ -62,15 +64,17 @@ local valid_special_games = {
 			[1] = {name = "mines_count", type = "textfield", text = "300", numeric = true, width = 40, tooltip = "Number of mines to be generated at start. Be careful with high values lol"},
 			[2] = {name = "size_x", type = "textfield", text = "400", numeric = true, width = 40, tooltip = "X dimension of the minefield, for silo and for players"},
 			[3] = {name = "size_y", type = "textfield", text = "400", numeric = true, width = 40, tooltip = "Y dimension of the minefield, for silo and for players"},
-			[4] = {name = "forest_density", type = "textfield", text = "50", numeric = true, width = 30, tooltip = "Forest density: 0-100"},
-			[5] = {name = "item1", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
-			[6] = {name = "item_count1", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"},
-			[7] = {name = "item2", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
-			[8] = {name = "item_count2", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"},
-			[9] = {name = "item3", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
-			[10] = {name = "item_count3", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"},
-			[11] = {name = "item4", type = "choose-elem-button", elem_type = "item", tooltip = "Type of item"},
-			[12] = {name = "item_count4", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "Number of items per 1 mine"}			
+			[4] = {name = "tree_frequency", type = "textfield", text = "4", numeric = true, allow_decimal = true, width = 30, tooltip = "Tree frequency"},
+			[5] = {name = "tree_size", type = "textfield", text = "1", numeric = true, allow_decimal = true, width = 30, tooltip = "Tree size"},
+			[6] = {name = "spawn_chance", type = "textfield", text = "1", numeric = true, allow_decimal = true, width = 30, tooltip = "Biter spawn chance after tree is mined. In %"},
+			[7] = {name = "item1", type = "choose-elem-button", elem_type = "item", tooltip = "#1 Type of item"},
+			[8] = {name = "item_count1", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#1 Number of items per 1 mine"},
+			[9] = {name = "item2", type = "choose-elem-button", elem_type = "item", tooltip = "#2 Type of item"},
+			[10] = {name = "item_count2", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#2 Number of items per 1 mine"},
+			[11] = {name = "item3", type = "choose-elem-button", elem_type = "item", tooltip = "#3 Type of item"},
+			[12] = {name = "item_count3", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#3 Number of items per 1 mine"},
+			--[12] = {name = "item4", type = "choose-elem-button", elem_type = "item", tooltip = "#4 Type of item"},
+			--[13] = {name = "item_count4", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#4 Number of items per 1 mine"}			
 		},
 		button = {name = "vietnam_apply", type = "button", caption = "Apply"}
 	}
@@ -206,7 +210,7 @@ local function spawn_mines(center_entity, field_size, count)	--field_size must h
 	end
 end
 
-local function generate_vietnam(field_size, mines_count, forest_density, prices)
+local function generate_vietnam(field_size, mines_count, tree_frequency, tree_size, spawn_chance, prices)
 	local surface = game.surfaces[global.bb_surface_name]
 	local trees = {
 		"dead-dry-hairy-tree",
@@ -230,12 +234,20 @@ local function generate_vietnam(field_size, mines_count, forest_density, prices)
 		"tree-09-brown",
 		"tree-09-red",
 		}
-	--surface.map_gen_settings.autoplace_controls["trees"] = {frequency = "very-high", size = "very-high"}
-	surface.map_gen_settings.autoplace_controls["trees"] = {frequency = 2, size = 2, density = 1}
-	surface.map_gen_settings.property_expression_names["moisture"] = "1"
-	surface.map_gen_settings.property_expression_names["temperature"] = "25"
+	
+	for k, v in pairs(surface.find_entities_filtered{name = trees}) do
+		v.destroy()
+	end
+	local new_settings = surface.map_gen_settings
+	new_settings.autoplace_controls["trees"] = {frequency = tree_frequency, size = tree_size, richness = 0.5}
+	--new_settings.property_expression_names["temperature"] = "25"
+	--new_settings.property_expression_names["moisture"] = ".5"
+	surface.map_gen_settings = new_settings
+	
+
 	surface.regenerate_entity(trees)
 	surface.regenerate_decorative()
+
 	for _, v in pairs(global.rocket_silo) do
 		local offset = -1
 		if v.force.name == "south" then offset = 1 end
@@ -281,7 +293,7 @@ local function generate_vietnam(field_size, mines_count, forest_density, prices)
 		spawn_mines(v, field_size, mines_count)
 	end
 	global.special_games_variables["field_size"] = field_size
-	global.special_games_variables["forest_density"] = math.clamp(forest_density, 0, 100)
+	global.special_games_variables["spawn_chance"] = spawn_chance
 	global.active_special_games["vietnam"] = true
 	game.print("Special game Vietnam War is being generated!", Color.warning)
 end
@@ -311,6 +323,18 @@ local function on_market_item_purchased(event)
 			spawn_mines(global.rocket_silo[enemy], field_size, count) 	--spawning leftover mines in case the team is empty
 			--game.print("Spawned mines around silo again: " .. count)
 		end
+	end
+end
+
+local function on_player_mined_entity(event)
+	if not global.active_special_games["vietnam"] then return end
+	local player = game.get_player(event.player_index)
+	local pos = event.entity.position
+	local biter_to_spawn 
+	local chance = global.special_games_variables["spawn_chance"]	--chance for spawning in %
+	if math.random(1, 100/chance) == 100/chance then
+		biter_to_spawn = Biter_raffle.roll("mixed", game.forces[player.force.name .. "_biters"].evolution_factor)
+		player.surface.create_entity{ name = biter_to_spawn, position = pos, force = player.force.name .. "_biters"}
 	end
 end
 
@@ -392,15 +416,17 @@ local function on_gui_click(event)
 	elseif element.name == "vietnam_confirm" then
 		local field_size = {x = tonumber(config["size_x"].text), y = tonumber(config["size_y"].text)}
 		local mines_count = config["mines_count"].text
-		local forest_density = tonumber(config["forest_density"].text)
+		local tree_frequency = tonumber(config["tree_frequency"].text)
+		local tree_size = tonumber(config["tree_size"].text)
+		local spawn_chance = tonumber(config["spawn_chance"].text)
 		local prices = {
 			[1] = {config["item1"].elem_value, tonumber(config["item_count1"].text)},
 			[2] = {config["item2"].elem_value, tonumber(config["item_count2"].text)},
 			[3] = {config["item3"].elem_value, tonumber(config["item_count3"].text)},
-			[4] = {config["item4"].elem_value, tonumber(config["item_count4"].text)}
+			--[4] = {config["item4"].elem_value, tonumber(config["item_count4"].text)}
 		}
 		
-		generate_vietnam(field_size, mines_count, forest_density, prices)
+		generate_vietnam(field_size, mines_count, tree_frequency, tree_size, spawn_chance, prices)
 
 	end
 
@@ -413,5 +439,10 @@ comfy_panel_tabs['Special games'] = {gui = create_special_games_panel, admin = t
 
 Event.add(defines.events.on_gui_click, on_gui_click)
 Event.add(defines.events.on_market_item_purchased, on_market_item_purchased)
+Event.add(defines.events.on_player_mined_entity, on_player_mined_entity)
+Event.add_event_filter(defines.events.on_player_mined_entity, {
+		filter = "type",
+		type = "tree"
+	})
 return Public
 

@@ -4,7 +4,6 @@ local BiterRaffle = require "maps.biter_battles_v2.biter_raffle"
 local bb_config = require "maps.biter_battles_v2.config"
 local Functions = require "maps.biter_battles_v2.functions"
 local tables = require "maps.biter_battles_v2.tables"
-local Special_games = require "comfy_panel.special_games"
 
 local spawn_ore = tables.spawn_ore
 local table_insert = table.insert
@@ -168,7 +167,7 @@ local function draw_noise_ore_patch(position, name, surface, radius, richness)
 	end
 end
 
-function is_within_spawn_circle(pos)
+function Public.is_within_spawn_circle(pos)
 	if math_abs(pos.x) > spawn_circle_size then return false end
 	if math_abs(pos.y) > spawn_circle_size then return false end
 	if math_sqrt(pos.x ^ 2 + pos.y ^ 2) > spawn_circle_size then return false end
