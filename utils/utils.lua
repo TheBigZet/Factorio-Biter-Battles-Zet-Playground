@@ -100,7 +100,6 @@ end
 
 -- distriutes the pool across players randomly. playerlist is a list of LuaPlayer
 Module.lotery = function(playerlist, pool)
-    game.print("lottery function")
     local results = {}
     local a = 0
     local last_player

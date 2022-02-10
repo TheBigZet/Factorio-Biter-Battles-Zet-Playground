@@ -71,8 +71,9 @@ local valid_special_games = {
 			[8] = {name = "item_count1", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#1 Number of items per 1 mine"},
 			[9] = {name = "item2", type = "choose-elem-button", elem_type = "item", tooltip = "#2 Type of item"},
 			[10] = {name = "item_count2", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#2 Number of items per 1 mine"},
-			[11] = {name = "item3", type = "choose-elem-button", elem_type = "item", tooltip = "#3 Type of item"},
-			[12] = {name = "item_count3", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#3 Number of items per 1 mine"},	
+			[11] = {name = "tree_richness", type = "textfield", text = "1", numeric = true, allow_decimal = true, width = 30, tooltip = "Tree richness (health 0-1)"},
+			--[11] = {name = "item3", type = "choose-elem-button", elem_type = "item", tooltip = "#3 Type of item"},
+			--[12] = {name = "item_count3", type = "textfield", text = "10", numeric = true, width = 30, tooltip = "#3 Number of items per 1 mine"},	
 		},
 		button = {name = "vietnam_apply", type = "button", caption = "Apply"}
 	}
@@ -196,19 +197,38 @@ local function spawn_mines(center_entity, field_size, count)	--field_size must h
 		end	
 		--game.print(min_y .. "   " .. max_y)
 	end
-	
-	for i = 1, count do
-		pos_x = math.random(center_entity.position.x - (field_size.x / 2), center_entity.position.x + (field_size.x / 2))
-		pos_y = math.random(min_y, max_y)
-		surface.create_entity {
-			name = "land-mine",
-			position = {pos_x , pos_y},
-			force = game.forces[center_entity.force.name .. "_biters"]
-		}
+	if center_entity.name == "rocket-silo" then
+		for i = 1, count do
+			pos_x = math.random(center_entity.position.x - (field_size.x / 2), center_entity.position.x + (field_size.x / 2))
+			pos_y = math.random(min_y, max_y)
+			--check if the position isn't too close to silo
+			local offsets = {-30,-20,20,30}
+			if (pos_x < center_entity.position.x + 8) and (pos_x > center_entity.position.x - 8) and (pos_y < center_entity.position.y + 8) and (pos_y > center_entity.position.y - 8) then
+				game.print("Offsetting a mine from " .. pos_x .. ", " .. pos_y)
+				pos_x = pos_x + offsets[math.random(1,4)]
+				pos_y = pos_y + offsets[math.random(1,4)]
+				game.print("To " .. pos_x .. ", " .. pos_y)
+			end
+			surface.create_entity {
+				name = "land-mine",
+				position = {pos_x , pos_y},
+				force = game.forces[center_entity.force.name .. "_biters"]
+			}
+		end
+	else
+		for i = 1, count do
+			pos_x = math.random(center_entity.position.x - (field_size.x / 2), center_entity.position.x + (field_size.x / 2))
+			pos_y = math.random(min_y, max_y)
+			surface.create_entity {
+				name = "land-mine",
+				position = {pos_x , pos_y},
+				force = game.forces[center_entity.force.name .. "_biters"]
+			}
+		end
 	end
 end
 
-local function generate_vietnam(field_size, mines_count, tree_frequency, tree_size, spawn_chance, prices)
+local function generate_vietnam(field_size, mines_count, tree_frequency, tree_size, tree_richness, spawn_chance, prices)
 	local surface = game.surfaces[global.bb_surface_name]
 	local trees = {
 		"dead-dry-hairy-tree",
@@ -237,7 +257,7 @@ local function generate_vietnam(field_size, mines_count, tree_frequency, tree_si
 		v.destroy()
 	end
 	local new_settings = surface.map_gen_settings
-	new_settings.autoplace_controls["trees"] = {frequency = tree_frequency, size = tree_size, richness = 0.5}
+	new_settings.autoplace_controls["trees"] = {frequency = tree_frequency, size = tree_size, richness = tree_richness}
 	surface.map_gen_settings = new_settings
 	surface.regenerate_entity(trees)
 	
@@ -283,6 +303,7 @@ local function generate_vietnam(field_size, mines_count, tree_frequency, tree_si
 			i.rotatable = false
 		end
 		market.operable = true
+		surface.create_entity {name = "tank", position = {0, 50*offset}, force = v.force}
 		spawn_mines(v, field_size, mines_count)
 	end
 
@@ -321,7 +342,7 @@ local function on_player_mined_entity(event)
 		local pos = event.entity.position
 		local biter_to_spawn 
 		local chance = global.special_games_variables["spawn_chance"]	--chance for spawning in %
-		if math.random(1, 100/chance) == 100/chance then
+		if math.random(1, 100) <= chance then
 			biter_to_spawn = Biter_raffle.roll("mixed", game.forces[player.force.name .. "_biters"].evolution_factor)
 			player.surface.create_entity{ name = biter_to_spawn, position = pos, force = player.force.name .. "_biters"}
 		end
@@ -408,14 +429,15 @@ local function on_gui_click(event)
 		local mines_count = config["mines_count"].text
 		local tree_frequency = tonumber(config["tree_frequency"].text)
 		local tree_size = tonumber(config["tree_size"].text)
+		local tree_richness = tonumber(config["tree_richness"].text)
 		local spawn_chance = tonumber(config["spawn_chance"].text)
 		local prices = {
 			[1] = {config["item1"].elem_value, tonumber(config["item_count1"].text)},
 			[2] = {config["item2"].elem_value, tonumber(config["item_count2"].text)},
-			[3] = {config["item3"].elem_value, tonumber(config["item_count3"].text)},
+			--[3] = {config["item3"].elem_value, tonumber(config["item_count3"].text)},
 		}
 		
-		generate_vietnam(field_size, mines_count, tree_frequency, tree_size, spawn_chance, prices)
+		generate_vietnam(field_size, mines_count, tree_frequency, tree_size, tree_richness, spawn_chance, prices)
 
 	end
 
