@@ -19,7 +19,7 @@ local function initialize_dropdown_users_choice()
 end
 
 local function get_science_text(food_name,food_short_name)
-	return table.concat({"[img=item/", food_name, "][color=",food_values[food_name].color, "]", food_short_name, "[/color]"})
+	return table.concat({"[img=item/", food_name, "]"})
 end
 
 local function add_science_logs(player, element)

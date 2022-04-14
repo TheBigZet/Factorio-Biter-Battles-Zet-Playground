@@ -61,13 +61,13 @@ local function print_feeding_msg(player, food, flask_amount)
 		["south"] = table.concat({"[color=255, 65, 65]", s, "'s[/color]"})
 	}
 	
-	local colored_player_name = table.concat({"[color=", player.color.r * 0.6 + 0.35, ",", player.color.g * 0.6 + 0.35, ",", player.color.b * 0.6 + 0.35, "]", player.name, "[/color]"})
-	local formatted_food = table.concat({"[color=", food_values[food].color, "]", food_values[food].name, " juice[/color]", "[img=item/", food, "]"})
+	local colored_player_name = table.concat({"[color=", player.chat_color.r, ",", player.chat_color.g, ",", player.chat_color.b, "]", player.name, "[/color]"})
+	local formatted_food = table.concat({"[img=item/", food, "]"})
 	local formatted_amount = table.concat({"[font=heading-1][color=255,255,255]" .. flask_amount .. "[/color][/font]"})
 	
 	if flask_amount >= 20 then
 		local enemy = get_enemy_team_of(player.force.name)
-		game.print(table.concat({colored_player_name, " fed ", formatted_amount, " flasks of ", formatted_food, " to team ", team_strings[enemy], " biters!"}), {r = 0.9, g = 0.9, b = 0.9})
+		game.print(table.concat({colored_player_name, " supplied ", team_strings[enemy], " biters with ", formatted_amount, formatted_food}), {r = 0.9, g = 0.9, b = 0.9})
 		Server.to_discord_bold(table.concat({player.name, " fed ", flask_amount, " flasks of ", food_values[food].name, " to team ", enemy, " biters!"}))
 	else
 		local target_team_text = "the enemy"
@@ -83,8 +83,8 @@ local function print_feeding_msg(player, food, flask_amount)
 end
 
 local function add_stats(player, food, flask_amount,biter_force_name,evo_before_science_feed,threat_before_science_feed)
-	local colored_player_name = table.concat({"[color=", player.color.r * 0.6 + 0.35, ",", player.color.g * 0.6 + 0.35, ",", player.color.b * 0.6 + 0.35, "]", player.name, "[/color]"})
-	local formatted_food = table.concat({"[color=", food_values[food].color, "][/color]", "[img=item/", food, "]"})
+	local colored_player_name = table.concat({"[color=", player.chat_color.r, ",", player.chat_color.g, ",", player.chat_color.b, "]", player.name, "[/color]"})
+	local formatted_food = table.concat({"[img=item/", food, "]"})
 	local formatted_amount = table.concat({"[font=heading-1][color=255,255,255]" .. flask_amount .. "[/color][/font]"})	
 	local n = bb_config.north_side_team_name
 	local s = bb_config.south_side_team_name
