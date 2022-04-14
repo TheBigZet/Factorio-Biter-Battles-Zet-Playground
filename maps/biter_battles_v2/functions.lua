@@ -11,6 +11,7 @@ local math_floor = math.floor
 local table_insert = table.insert
 local table_remove = table.remove
 local string_find = string.find
+local Event = require "utils.event"
 require 'utils/gui_styles'
 
 -- Only add upgrade research balancing logic in this section
@@ -456,5 +457,11 @@ function get_upgrade_modifier(ammo_category)
     end
     return result
 end
+local function on_research_finished(event)
+	if event.research.name == "flamethrower" then
+		event.research.force.recipes["flamethrower-turret"].enabled = false
+	end
+end
 
+Event.add(defines.events.on_research_finished, on_research_finished)
 return Public

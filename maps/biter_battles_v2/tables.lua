@@ -10,7 +10,7 @@ Public.ammo_modified_forces_list = {"north", "south", "spectator"}
 Public.base_ammo_modifiers = {
 	["bullet"] = 0.16,
 	["shotgun-shell"] = 1,
-	["flamethrower"] = -0.6,
+	["flamethrower"] = -0.3,
 	["landmine"] = -0.9
 }
 
