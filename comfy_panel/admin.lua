@@ -1,7 +1,6 @@
 --antigrief things made by mewmew
 
 local Event = require 'utils.event'
-local Jailed = require 'utils.datastore.jail_data'
 local Tabs = require 'comfy_panel.main'
 local AntiGrief = require 'antigrief'
 local Server = require 'utils.server'
@@ -16,19 +15,6 @@ local function admin_only_message(str)
     end
 end
 
-local function jail(player, source_player)
-    if player.name == source_player.name then
-        return player.print("You can't select yourself!", {r = 1, g = 0.5, b = 0.1})
-    end
-    Jailed.try_ul_data(player.name, true, source_player.name)
-end
-
-local function free(player, source_player)
-    if player.name == source_player.name then
-        return player.print("You can't select yourself!", {r = 1, g = 0.5, b = 0.1})
-    end
-    Jailed.try_ul_data(player.name, false, source_player.name)
-end
 
 local bring_player_messages = {
     'Come here my friend!',
@@ -381,15 +367,6 @@ local create_admin_panel = (function(player, frame)
         t.add(
             {
                 type = 'button',
-                caption = 'Jail',
-                name = 'jail',
-                tooltip = 'Jails the player, they will no longer be able to perform any actions except writing in chat.'
-            }
-        ),
-        t.add({type = 'button', caption = 'Free', name = 'free', tooltip = 'Frees the player from jail.'}),
-        t.add(
-            {
-                type = 'button',
                 caption = 'Bring Player',
                 name = 'bring_player',
                 tooltip = 'Teleports the selected player to your position.'
@@ -535,7 +512,6 @@ local create_admin_panel = (function(player, frame)
 end)
 
 local admin_functions = {
-    ['jail'] = jail,
     ['free'] = free,
     ['bring_player'] = bring_player,
     ['spank'] = spank,
