@@ -8,7 +8,7 @@ local Global = require 'utils.global'
 local Utils = require 'utils.core'
 local Color = require 'utils.color_presets'
 local Server = require 'utils.server'
-
+local Jail = require 'utils.datastore.jail_data'
 
 local Public = {}
 local match = string.match
@@ -159,7 +159,9 @@ local function do_action(player, prefix, msg, ban_msg, kill)
         end
     elseif this.players_warned[player.index] == 1 then
         this.players_warned[player.index] = 2
-        if this.enable_autokick then
+        if this.enable_jail then
+            Jail.try_ul_data(player, true, 'script')
+        elseif this.enable_autokick then
             game.kick_player(player, msg)
         end
     else
@@ -911,6 +913,17 @@ function Public.enable_capsule_cursor_warning(value)
     return this.enable_capsule_cursor_warning
 end
 
+--- If the script should jail a person instead of kicking them
+---@param value <string>
+function Public.enable_jail(value)
+    if value then
+        this.enable_jail = value
+    else
+        this.enable_jail = false
+    end
+
+    return this.enable_jail
+end
 
 --- Defines what the threshold for amount of explosives in chest should be - logged or not.
 ---@param value <string>

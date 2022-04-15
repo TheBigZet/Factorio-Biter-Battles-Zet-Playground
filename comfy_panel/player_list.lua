@@ -15,6 +15,7 @@ Minor changes by ~~~Gerkiz~~~
 local Event = require 'utils.event'
 local Where = require 'commands.where'
 local Session = require 'utils.datastore.session_data'
+local Jailed = require 'utils.datastore.jail_data'
 local Tabs = require 'comfy_panel.main'
 local Global = require 'utils.global'
 
@@ -390,7 +391,7 @@ local function player_list_show(player, frame, sort_by)
     frame.clear()
     frame.style.padding = 8
     local play_table = Session.get_trusted_table()
-
+    local jailed = Jailed.get_jailed_table()
 
     -- Header management
     local t = frame.add {type = 'table', name = 'player_list_panel_header_table', column_count = 5}
@@ -498,6 +499,9 @@ local function player_list_show(player, frame, sort_by)
         if game.players[player_list[i].name].admin then
             trusted = '[color=red][A][/color]'
             tooltip = 'This player is an admin of this server.\nLeft-click to show this person on map!'
+        elseif jailed[player_list[i].name] then
+            trusted = '[color=orange][J][/color]'
+            tooltip = 'This player is currently jailed.\nLeft-click to show this person on map!'
         elseif play_table[player_list[i].name] then
             trusted = '[color=green][T][/color]'
             tooltip = 'This player is trusted.\nLeft-click to show this person on map!'
