@@ -111,25 +111,25 @@ Public.spawn_ore = {
 	-- patches of given type. The "density" is applied with the same rule
 	-- regardless of the patch size.
 	["iron-ore"] = {
-		size = 23,
+		size = 12,
 		density = 3500,
 		big_patches = 2,
-		small_patches = 1
+		small_patches = 0
 	},
 	["copper-ore"] = {
-		size = 21,
+		size = 11,
 		density = 3000,
-		big_patches = 1,
-		small_patches = 2
+		big_patches = 2,
+		small_patches = 0
 	},
 	["coal"] = {
-		size = 22,
+		size = 10,
 		density = 2500,
 		big_patches = 1,
-		small_patches = 1
+		small_patches = 0
 	},
 	["stone"] = {
-		size = 20,
+		size = 9,
 		density = 2000,
 		big_patches = 1,
 		small_patches = 0
@@ -168,7 +168,7 @@ Public.packs_contents = {
 				["pipe"]=20,
 				["pipe-to-ground"]=2,
 				["lab"]=5,
-				["coal"]=300,
+				["coal"]=600,
 				["inserter"]=50,
 				["pistol"]=1,
 				["firearm-magazine"]=10

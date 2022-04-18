@@ -22,6 +22,7 @@ local function force_map_reset(reason)
             Server.to_discord_embed(msg)
             local p = global.rocket_silo["north"].position
             global.rocket_silo["north"].die("south_biters")
+            global.server_restart_timer = 5
         end
     end
 end
