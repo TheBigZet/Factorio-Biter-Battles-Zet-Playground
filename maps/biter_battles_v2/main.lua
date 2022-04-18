@@ -132,6 +132,15 @@ local function on_tick()
 		global.bb_threat["north_biters"] = global.bb_threat["north_biters"] + global.bb_threat_income["north_biters"]
 		global.bb_threat["south_biters"] = global.bb_threat["south_biters"] + global.bb_threat_income["south_biters"]
 	end
+	
+	if tick % 300 == 0 then 
+		if tick % 54000 == 0 and not(global.bb_game_won_by_team) then clear_corpses_auto(500) end
+		if not(global.starter_chests_are_filled) then
+			local surface = game.surfaces[global.bb_surface_name]
+			Terrain.fill_starter_chests(surface)
+			global.starter_chests_are_filled = true
+		end
+	end
 
 	if (tick+5) % 180 == 0 then
 		Gui.refresh()
@@ -310,6 +319,23 @@ local function on_init()
 	Init.forces()
 	Init.draw_structures()
 	Init.load_spawn()
+end
+
+local function clear_corpses_auto(radius) -- EVL - Automatic clear corpses called every 5 min
+	if not Ai.empty_reanim_scheduler() then
+		if global.bb_debug then game.print("Debug: Some corpses are waiting to be reanimated... Skipping this turn of clear_corpses") end
+		return
+	end
+	local _param = tonumber(radius)
+	local _radius = {{x = (0 + -_param), y = (0 + -_param)}, {x = (0 + _param), y = (0 + _param)}}
+	local _surface = game.surfaces[global.bb_surface_name]
+	for _, entity in pairs(_surface.find_entities_filtered {area = _radius, type = 'corpse'}) do
+		if entity.corpse_expires then
+			entity.destroy()
+		end
+	end
+	if global.bb_debug then game.print("Debug: Cleared corpses (dead biters and destroyed entities).", Color.success) 
+	else game.print("Cleared corpses.", Color.success) end --EVL we could count the biters (and only the biters?)
 end
 
 local Event = require 'utils.event'

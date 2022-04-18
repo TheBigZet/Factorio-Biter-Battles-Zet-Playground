@@ -823,4 +823,24 @@ function Public.add_holiday_decorations(surface)
 	end
 end
 
+function Public.fill_starter_chests(surface)
+	local _posX = 00
+	local _posY = 40
+
+	if global.packchest2N then global.packchest2N.destroy() end
+	if global.packchest2S then global.packchest2S.destroy() end
+	global.packchest2N = surface.create_entity({name = "steel-chest", position = {x=_posX, y=-_posY}, force = "north"})
+	global.packchest2S = surface.create_entity({name = "steel-chest", position = {x=_posX, y=_posY-1}, force = "south"})
+	for _item,_qty in pairs(tables.packs_contents) do
+		global.packchest2N.insert({name=_item, count=_qty})
+		global.packchest2S.insert({name=_item, count=_qty})
+	end
+
+	--WE GIVE FREE TECHNO, now I've just left unused tech to decide what
+	game.forces["south"].technologies['worker-robots-speed-1'].researched=true
+
+	global.fill_starter_chests = false
+	global.starter_chests_are_filled = true
+end
+
 return Public
