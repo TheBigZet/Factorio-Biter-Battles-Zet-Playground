@@ -123,6 +123,71 @@ local tick_minute_functions = {
 	[300 * 4] = Ai.send_near_biters_to_silo,
 }
 
+local function clear_corpses_core(posx, posy, radius, surface)
+	local area_to_clear = {{x = (posx + -radius), y = (posy + -radius)}, {x = (posx + radius), y = (posy + radius)}}
+    for _, entity in pairs(surface.find_entities_filtered {area = area_to_clear, type = 'corpse'}) do
+		--EVL we remove 90% of corpses/walls/furnaces
+		if entity.corpse_expires then
+			if string.sub(entity.name,-7,-1)=="-corpse" or entity.name=="wall-remnants" or entity.name=="stone-furnace-remnants" then
+				if math.random(1,10)>1 then
+					--game.print("name: "..entity.name.." / proto: "..entity.type)
+					entity.destroy()
+				end
+			end
+		end
+	end
+end
+
+local function clear_corpses(cmd)
+	local player = game.player
+        local trusted = Session.get_trusted_table()
+        local param = tonumber(cmd.parameter)
+
+        if not player or not player.valid then
+            return
+        end
+        if param == nil then
+            player.print('[ERROR] Must specify radius!', Color.fail)
+            return
+        end
+        if not trusted[player.name] and not player.admin and param > 100 then
+				player.print('[ERROR] Value is too big. Max radius is 100', Color.fail)
+				return
+        end
+        if param < 0 then
+            player.print('[ERROR] Value is too low.', Color.fail)
+            return
+        end
+        if param > 500 then
+            player.print('[ERROR] Value is too big.', Color.fail)
+            return
+        end
+
+	if not Ai.empty_reanim_scheduler() then
+		player.print("[ERROR] Some corpses are waiting to be reanimated...")
+		player.print(" => Try again in short moment")
+		return
+	end
+
+        local pos = player.position
+
+        clear_corpses_core(pos.x, pos.y, param, player.surface)
+        player.print('Cleared 90% corpses.', Color.success)
+end
+
+local function clear_corpses_auto(radius) -- EVL - Automatic clear corpses called every 5 min
+	if not Ai.empty_reanim_scheduler() then
+		if global.bb_debug then game.print("Debug: Some corpses are waiting to be reanimated... Skipping this turn of clear_corpses") end
+		return
+	end
+	local _param = tonumber(radius)
+	local _surface = game.surfaces[global.bb_surface_name]
+	clear_corpses_core(0, 0, _param, _surface)
+	if global.bb_debug then game.print("Debug: Cleared corpses (dead biters and destroyed entities).", Color.success) 
+	else game.print("Cleared 90% corpses.", Color.success) end --EVL we could count the biters (and only the biters?)
+end
+
+
 local function on_tick()
 	local tick = game.tick
 
@@ -134,7 +199,9 @@ local function on_tick()
 	end
 	
 	if tick % 300 == 0 then 
-		if tick % 54000 == 0 and not(global.bb_game_won_by_team) then clear_corpses_auto(500) end
+		if tick % 18000 == 0 and not(global.bb_game_won_by_team) then 
+			clear_corpses_auto(500)
+		end
 		if not(global.starter_chests_are_filled) then
 			local surface = game.surfaces[global.bb_surface_name]
 			Terrain.fill_starter_chests(surface)
@@ -151,7 +218,6 @@ local function on_tick()
 
 		if global.bb_game_won_by_team then
 			Game_over.reveal_map()
-			Game_over.server_restart()
 			return
 		end
 	end
@@ -270,48 +336,6 @@ local function on_rocket_launch_ordered(event)
 	end
 end
 
-local function clear_corpses(cmd)
-	local player = game.player
-        local trusted = Session.get_trusted_table()
-        local param = tonumber(cmd.parameter)
-
-        if not player or not player.valid then
-            return
-        end
-        if param == nil then
-            player.print('[ERROR] Must specify radius!', Color.fail)
-            return
-        end
-        if not trusted[player.name] and not player.admin and param > 100 then
-				player.print('[ERROR] Value is too big. Max radius is 100', Color.fail)
-				return
-        end
-        if param < 0 then
-            player.print('[ERROR] Value is too low.', Color.fail)
-            return
-        end
-        if param > 500 then
-            player.print('[ERROR] Value is too big.', Color.fail)
-            return
-        end
-
-	if not Ai.empty_reanim_scheduler() then
-		player.print("[ERROR] Some corpses are waiting to be reanimated...")
-		player.print(" => Try again in short moment")
-		return
-	end
-
-        local pos = player.position
-
-        local radius = {{x = (pos.x + -param), y = (pos.y + -param)}, {x = (pos.x + param), y = (pos.y + param)}}
-        for _, entity in pairs(player.surface.find_entities_filtered {area = radius, type = 'corpse'}) do
-            if entity.corpse_expires then
-                entity.destroy()
-            end
-        end
-        player.print('Cleared biter-corpses.', Color.success)
-end
-
 local function on_init()
 	Init.tables()
 	Init.initial_setup()
@@ -319,23 +343,6 @@ local function on_init()
 	Init.forces()
 	Init.draw_structures()
 	Init.load_spawn()
-end
-
-local function clear_corpses_auto(radius) -- EVL - Automatic clear corpses called every 5 min
-	if not Ai.empty_reanim_scheduler() then
-		if global.bb_debug then game.print("Debug: Some corpses are waiting to be reanimated... Skipping this turn of clear_corpses") end
-		return
-	end
-	local _param = tonumber(radius)
-	local _radius = {{x = (0 + -_param), y = (0 + -_param)}, {x = (0 + _param), y = (0 + _param)}}
-	local _surface = game.surfaces[global.bb_surface_name]
-	for _, entity in pairs(_surface.find_entities_filtered {area = _radius, type = 'corpse'}) do
-		if entity.corpse_expires then
-			entity.destroy()
-		end
-	end
-	if global.bb_debug then game.print("Debug: Cleared corpses (dead biters and destroyed entities).", Color.success) 
-	else game.print("Cleared corpses.", Color.success) end --EVL we could count the biters (and only the biters?)
 end
 
 local Event = require 'utils.event'
