@@ -78,6 +78,7 @@ function Public.initial_setup()
 	
 	global.match_running = false  --EVL determine if this is first unfreeze (start match) or nexts (pause/unpause)
 	global.cant_unpause=true --EVL Avoid double pause click (second one would engage unpause)
+	global.reset_in_progress = false
 
 	--Disable Nauvis
 	local surface = game.surfaces[1]
@@ -222,6 +223,8 @@ function Public.tables()
 end
 
 function Public.load_spawn()
+	global.reset_in_progress = false
+	global.server_restart_timer = 99999999 -- never restart unless forced map reset
 	local surface = game.surfaces[global.bb_surface_name]
 	surface.request_to_generate_chunks({x = 0, y = 0}, 1)
 	surface.force_generate_chunk_requests()

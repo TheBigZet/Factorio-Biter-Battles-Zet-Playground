@@ -111,25 +111,25 @@ Public.spawn_ore = {
 	-- patches of given type. The "density" is applied with the same rule
 	-- regardless of the patch size.
 	["iron-ore"] = {
-		size = 12,
+		size = 15,
 		density = 3500,
 		big_patches = 2,
 		small_patches = 0
 	},
 	["copper-ore"] = {
-		size = 11,
+		size = 13,
 		density = 3000,
 		big_patches = 2,
 		small_patches = 0
 	},
 	["coal"] = {
-		size = 10,
+		size = 11,
 		density = 2500,
 		big_patches = 1,
 		small_patches = 0
 	},
 	["stone"] = {
-		size = 9,
+		size = 11,
 		density = 2000,
 		big_patches = 1,
 		small_patches = 0

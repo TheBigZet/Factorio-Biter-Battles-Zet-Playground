@@ -251,6 +251,7 @@ local function on_tick()
 
 		if global.bb_game_won_by_team then
 			Game_over.reveal_map()
+			Game_over.server_restart()
 			return
 		end
 	end
