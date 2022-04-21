@@ -95,7 +95,7 @@ function Public.initial_setup()
 end
 
 
-	  
+
 --Terrain Playground Surface
 function Public.playground_surface()
 	local map_gen_settings = {}

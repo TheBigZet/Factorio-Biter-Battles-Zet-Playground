@@ -439,9 +439,9 @@ function Public.draw_spawn_circle(surface)
 				table_insert(tiles, {name = "deepwater", position = pos})
 
 				if distance_to_center < 9.5 then 
-					table_insert(tiles, {name = "blue-refined-concrete", position = pos})
+					table_insert(tiles, {name = "refined-concrete", position = pos})
 					if distance_to_center < 7 then 
-						table_insert(tiles, {name = "lab-white", position = pos})
+						table_insert(tiles, {name = "sand-1", position = pos})
 					end
 			--	else
 					--
@@ -738,7 +738,6 @@ function Public.deny_enemy_side_ghosts(event)
 	if not robot_build_restriction[force](event.created_entity.position.y) then return end
 	event.created_entity.destroy()
 end
-
 
 function Public.add_gifts(surface)
 	-- exclude dangerous goods
