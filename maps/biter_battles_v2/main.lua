@@ -187,9 +187,42 @@ local function clear_corpses_auto(radius) -- EVL - Automatic clear corpses calle
 	else game.print("Cleared 90% corpses.", Color.success) end --EVL we could count the biters (and only the biters?)
 end
 
+--EVL A BEAUTIFUL COUNTDOWN (WAS IN ASCII ART) (game.print 10+ then images from 9 -> 1)
+local function show_countdown(_second)
+	if not _second or _second<0 then return end
+	if _second==0 then
+		--for _, player in pairs(game.connected_players) do
+		game.play_sound{path = "utility/new_objective", volume_modifier = 1}
+			--sounds : console_message
+		--end
+		return
+	end
+	if _second>9 then 
+		game.print(">>>>> ".._second.."s remaining", {r = 77, g = 192, b = 77})
+		--for _, player in pairs(game.connected_players) do
+		game.play_sound{path = "utility/gui_click", volume_modifier = 0.2}
+		--end
+		return 
+	end
+	for _, player in pairs(game.connected_players) do
+		--EVL close all gui.center frames
+		for _, gui_names in pairs(player.gui.center.children_names) do 
+			player.gui.center[gui_names].destroy()
+		end
+		local _sprite="file/png/".._second..".png" 
+		player.gui.center.add{name = "bbc_cdf", type = "sprite", sprite = _sprite} -- EVL cdf for countdown_frame
+	end	
+	game.play_sound{path = "utility/list_box_click", volume_modifier = math.min(1,2/_second)}  --other sounds crafting_finished ? inventory_move? smart_pipette? blueprint_selection_ended?
+end
+
 
 local function on_tick()
 	local tick = game.tick
+	
+	if not global.match_running then 
+		global.freeze_players = true
+		Team_manager.freeze_players()
+	end
 
 	Ai.reanimate_units()
 
@@ -225,6 +258,25 @@ local function on_tick()
 	if tick % 30 == 0 then	
 		local key = tick % 3600
 		if tick_minute_functions[key] then tick_minute_functions[key]() end
+	end
+	-- EVL COUNTDOWN FOR STARTING GAME (UNFREEZE AND SOME INITS)
+	if global.match_running and global.match_countdown >=0 and tick % 3 == 0 then
+		game.speed=0.05 --EVL Slow down the game speed during countdowns
+		show_countdown(global.match_countdown)
+		global.match_countdown = global.match_countdown - 1
+		--CLOSE THE FRAMES WHEN DONE
+		if global.match_countdown < 0 then
+			for _, player in pairs(game.connected_players) do		
+				if player.gui.center["bbc_cdf"] then	player.gui.center["bbc_cdf"].destroy() end
+			end
+			-- EVL SET global.next_attack = "north" / "south" and global.main_attack_wave_amount=0 --DEBUG--
+			global.freeze_players = false
+			Team_manager.unfreeze_players()
+
+			--game.tick_paused=false --EVL Not that easy (see team_manager.lua)
+			game.speed=1 --EVL back to normal speed
+			game.print(">>>>> Players & Biters have been unfrozen !", {r = 255, g = 77, b = 77})
+		end
 	end
 end
 

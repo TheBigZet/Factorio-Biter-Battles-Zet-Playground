@@ -73,8 +73,11 @@ function Public.initial_setup()
 	global.bb_settings = {
 		--TEAM SETTINGS--
 		["team_balancing"] = true,			--Should players only be able to join a team that has less or equal members than the opposing team?
-		["only_admins_vote"] = false,		--Are only admins able to vote on the global difficulty?
+		["only_admins_vote"] = true,		--Are only admins able to vote on the global difficulty?
 	}
+	
+	global.match_running = false  --EVL determine if this is first unfreeze (start match) or nexts (pause/unpause)
+	global.cant_unpause=true --EVL Avoid double pause click (second one would engage unpause)
 
 	--Disable Nauvis
 	local surface = game.surfaces[1]
@@ -85,6 +88,9 @@ function Public.initial_setup()
 	for chunk in surface.get_chunks() do
 		surface.delete_chunk({chunk.x, chunk.y})
 	end
+	
+	global.tournament_mode = true -- EVL (none)
+	global.training_mode  = false -- EVL (none)
 end
 
 
@@ -172,7 +178,7 @@ function Public.tables()
 	global.difficulty_vote_value = 1
 	global.difficulty_vote_index = 4
 
-	global.difficulty_votes_timeout = 36000
+	global.difficulty_votes_timeout = 0 -- no difficulty vote at all
 
 	-- A FIFO that holds dead unit positions. It is used by unit
 	-- reanimation logic. This container is to be accessed by force index.
@@ -205,6 +211,8 @@ function Public.tables()
 	-- Container for storing chance of reanimation. The stored value
 	-- is a range between [0, 100], accessed by key with force's index.
 	global.reanim_chance = {}
+	
+	global.match_countdown = 9 --EVL time of the countdown in seconds before match starts (unpause will have a 3 seconds countdown)
 
 	fifo.init()
 
