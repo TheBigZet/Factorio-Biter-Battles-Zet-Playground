@@ -24,9 +24,6 @@ local function force_map_reset(reason)
             global.reset_in_progress = true
             global.rocket_silo["north"].die("south_biters")
             global.server_restart_timer = 5
-            global.match_running = false
-            global.starter_chests_are_filled = false
-
         end
     end
 end

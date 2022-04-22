@@ -309,7 +309,6 @@ function Public.forces()
 	f.share_chart = false
 
 	for _, force in pairs(game.forces) do
-		game.forces[force.name].technologies["flamethrower"].enabled = false
 		game.forces[force.name].technologies["artillery"].enabled = false
 		game.forces[force.name].technologies["artillery-shell-range-1"].enabled = false
 		game.forces[force.name].technologies["artillery-shell-speed-1"].enabled = false

@@ -251,6 +251,8 @@ local function on_tick()
 
 		if global.bb_game_won_by_team then
 			Game_over.reveal_map()
+			global.match_running = false
+            global.starter_chests_are_filled = false
 			Game_over.server_restart()
 			return
 		end
