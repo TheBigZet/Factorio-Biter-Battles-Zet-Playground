@@ -227,44 +227,6 @@ local function generate_starting_area(pos, distance_to_center, surface)
 		end
 		return
 	end
-
-	if surface.can_place_entity({name = "wooden-chest", position = pos}) and surface.can_place_entity({name = "coal", position = pos}) then
-		local noise_2 = get_noise(3, pos)
-		if noise_2 < 0.40 then
-			if noise_2 > -0.40 then
-				if distance_from_spawn_wall > -1.75 and distance_from_spawn_wall < 0 then				
-					local e = surface.create_entity({name = "stone-wall", position = pos, force = "north"})
-				end
-			else
-				if distance_from_spawn_wall > -1.95 and distance_from_spawn_wall < 0 then				
-					local e = surface.create_entity({name = "stone-wall", position = pos, force = "north"})
-
-				elseif distance_from_spawn_wall > 0 and distance_from_spawn_wall < 4.5 then
-						local name = "wooden-chest"
-						local r_max = math_floor(math.abs(distance_from_spawn_wall)) + 2
-						if math_random(1,3) == 1 and not is_horizontal_border_river(pos) then name = name .. "-remnants" end
-						if math_random(1,r_max) == 1 then 
-							local e = surface.create_entity({name = name, position = pos, force = "north"})
-						end
-
-				elseif distance_from_spawn_wall > -6 and distance_from_spawn_wall < -3 then
-					if math_random(1, 16) == 1 then
-						if surface.can_place_entity({name = "gun-turret", position = pos}) then
-							local e = surface.create_entity({name = "gun-turret", position = pos, force = "north"})
-							e.insert({name = "firearm-magazine", count = math_random(2,16)})
-							Functions.add_target_entity(e)
-						end
-					else
-						if math_random(1, 24) == 1 and not is_horizontal_border_river(pos) then
-							if surface.can_place_entity({name = "gun-turret", position = pos}) then
-								surface.create_entity({name = "gun-turret-remnants", position = pos, force = "neutral"})
-							end
-						end
-					end
-				end
-			end
-		end
-	end
 end
 
 local function generate_river(surface, left_top_x, left_top_y)
