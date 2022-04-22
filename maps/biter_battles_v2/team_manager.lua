@@ -13,7 +13,7 @@ local function get_player_array(force_name)
 	return a
 end
 
-local function freeze_players()
+function Public.freeze_players()
 	if not global.freeze_players then return end
 	global.team_manager_default_permissions = {}
 	local p = game.permissions.get_group("Default")	
@@ -34,13 +34,12 @@ local function freeze_players()
 	for _, d in pairs(defs) do p.set_allows_action(d, true) end
 end
 
-local function unfreeze_players()
+function Public.unfreeze_players()
 	local p = game.permissions.get_group("Default") 
 	for action_name, _ in pairs(defines.input_action) do
-		if global.team_manager_default_permissions[action_name] then
-			p.set_allows_action(defines.input_action[action_name], true)
-		end
-	end
+		global.team_manager_default_permissions[action_name] = p.allows_action(defines.input_action[action_name])
+		p.set_allows_action(defines.input_action[action_name], true)
+	end	
 end
 
 local function leave_corpse(player)
@@ -275,20 +274,29 @@ local function team_manager_gui_click(event)
 	end
 	
 	if name == "team_manager_freeze_players" then
-		if global.freeze_players then
-			if not player.admin then player.print("Only admins can unfreeze players.", {r = 175, g = 0, b = 0}) return end
-			global.freeze_players = false
+		if not global.match_running then --First unfreeze meaning match is starting
+			global.match_running=true 
+			global.bb_threat["north_biters"] = 9 --EVL we start at threat=9 to avoid weird sendings at the beginning
+			global.bb_threat["south_biters"] = 9 
+			game.surfaces[global.bb_surface_name].daytime = 0.6 -- we set time to dawn
+			game.print(">>>>> Match is starting shortly. Good luck ! Have Fun !", {r = 11, g = 255, b = 11})
+			game.play_sound{path = global.sound_success, volume_modifier = 0.8}
+		else 
+			if global.freeze_players then
+				if not player.admin then player.print("Only admins can unfreeze players.", {r = 175, g = 0, b = 0}) return end
+				global.freeze_players = false
+				draw_manager_gui(player)
+				game.print(">>> Players have been unfrozen!", {r = 255, g = 77, b = 77})
+				Public.unfreeze_players()
+				return
+			end
+			if not player.admin then player.print("Only admins can freeze players.", {r = 175, g = 0, b = 0}) return end
+			global.freeze_players = true
 			draw_manager_gui(player)
-			game.print(">>> Players have been unfrozen!", {r = 255, g = 77, b = 77})
-			unfreeze_players()
+			game.print(">>> Players have been frozen!", {r = 111, g = 111, b = 255})
+			Public.freeze_players()
 			return
 		end
-		if not player.admin then player.print("Only admins can freeze players.", {r = 175, g = 0, b = 0}) return end
-		global.freeze_players = true
-		draw_manager_gui(player)
-		game.print(">>> Players have been frozen!", {r = 111, g = 111, b = 255})
-		freeze_players()
-		return
 	end
 	
 	if name == "team_manager_activate_training" then

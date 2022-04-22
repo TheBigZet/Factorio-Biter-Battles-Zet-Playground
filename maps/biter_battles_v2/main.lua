@@ -123,14 +123,123 @@ local tick_minute_functions = {
 	[300 * 4] = Ai.send_near_biters_to_silo,
 }
 
+local function clear_corpses_core(posx, posy, radius, surface)
+	local area_to_clear = {{x = (posx + -radius), y = (posy + -radius)}, {x = (posx + radius), y = (posy + radius)}}
+    for _, entity in pairs(surface.find_entities_filtered {area = area_to_clear, type = 'corpse'}) do
+		--EVL we remove 90% of corpses/walls/furnaces
+		if entity.corpse_expires then
+			if string.sub(entity.name,-7,-1)=="-corpse" or entity.name=="wall-remnants" or entity.name=="stone-furnace-remnants" then
+				if math.random(1,10)>1 then
+					--game.print("name: "..entity.name.." / proto: "..entity.type)
+					entity.destroy()
+				end
+			end
+		end
+	end
+end
+
+local function clear_corpses(cmd)
+	local player = game.player
+        local trusted = Session.get_trusted_table()
+        local param = tonumber(cmd.parameter)
+
+        if not player or not player.valid then
+            return
+        end
+        if param == nil then
+            player.print('[ERROR] Must specify radius!', Color.fail)
+            return
+        end
+        if not trusted[player.name] and not player.admin and param > 100 then
+				player.print('[ERROR] Value is too big. Max radius is 100', Color.fail)
+				return
+        end
+        if param < 0 then
+            player.print('[ERROR] Value is too low.', Color.fail)
+            return
+        end
+        if param > 500 then
+            player.print('[ERROR] Value is too big.', Color.fail)
+            return
+        end
+
+	if not Ai.empty_reanim_scheduler() then
+		player.print("[ERROR] Some corpses are waiting to be reanimated...")
+		player.print(" => Try again in short moment")
+		return
+	end
+
+        local pos = player.position
+
+        clear_corpses_core(pos.x, pos.y, param, player.surface)
+        player.print('Cleared 90% corpses.', Color.success)
+end
+
+local function clear_corpses_auto(radius) -- EVL - Automatic clear corpses called every 5 min
+	if not Ai.empty_reanim_scheduler() then
+		if global.bb_debug then game.print("Debug: Some corpses are waiting to be reanimated... Skipping this turn of clear_corpses") end
+		return
+	end
+	local _param = tonumber(radius)
+	local _surface = game.surfaces[global.bb_surface_name]
+	clear_corpses_core(0, 0, _param, _surface)
+	if global.bb_debug then game.print("Debug: Cleared corpses (dead biters and destroyed entities).", Color.success) 
+	else game.print("Cleared 90% corpses.", Color.success) end --EVL we could count the biters (and only the biters?)
+end
+
+--EVL A BEAUTIFUL COUNTDOWN (WAS IN ASCII ART) (game.print 10+ then images from 9 -> 1)
+local function show_countdown(_second)
+	if not _second or _second<0 then return end
+	if _second==0 then
+		--for _, player in pairs(game.connected_players) do
+		game.play_sound{path = "utility/new_objective", volume_modifier = 1}
+			--sounds : console_message
+		--end
+		return
+	end
+	if _second>9 then 
+		game.print(">>>>> ".._second.."s remaining", {r = 77, g = 192, b = 77})
+		--for _, player in pairs(game.connected_players) do
+		game.play_sound{path = "utility/gui_click", volume_modifier = 0.2}
+		--end
+		return 
+	end
+	for _, player in pairs(game.connected_players) do
+		--EVL close all gui.center frames
+		for _, gui_names in pairs(player.gui.center.children_names) do 
+			player.gui.center[gui_names].destroy()
+		end
+		local _sprite="file/png/".._second..".png" 
+		player.gui.center.add{name = "bbc_cdf", type = "sprite", sprite = _sprite} -- EVL cdf for countdown_frame
+	end	
+	game.play_sound{path = "utility/list_box_click", volume_modifier = math.min(1,2/_second)}  --other sounds crafting_finished ? inventory_move? smart_pipette? blueprint_selection_ended?
+end
+
+
 local function on_tick()
 	local tick = game.tick
+	
+	if not global.match_running then 
+		global.freeze_players = true
+		Team_manager.freeze_players()
+	end
 
 	Ai.reanimate_units()
 
 	if tick % 60 == 0 then 
 		global.bb_threat["north_biters"] = global.bb_threat["north_biters"] + global.bb_threat_income["north_biters"]
 		global.bb_threat["south_biters"] = global.bb_threat["south_biters"] + global.bb_threat_income["south_biters"]
+	end
+	
+	if tick % 300 == 0 then 
+		if tick % 18000 == 0 and not(global.bb_game_won_by_team) then 
+			clear_corpses_auto(500)
+		end
+		if not(global.starter_chests_are_filled) then
+			local surface = game.surfaces[global.bb_surface_name]
+			Terrain.fill_starter_chests(surface)
+			global.starter_chests_are_filled = true
+		end
 	end
 
 	if (tick+5) % 180 == 0 then
@@ -142,6 +251,8 @@ local function on_tick()
 
 		if global.bb_game_won_by_team then
 			Game_over.reveal_map()
+			global.match_running = false
+            global.starter_chests_are_filled = false
 			Game_over.server_restart()
 			return
 		end
@@ -150,6 +261,25 @@ local function on_tick()
 	if tick % 30 == 0 then	
 		local key = tick % 3600
 		if tick_minute_functions[key] then tick_minute_functions[key]() end
+	end
+	-- EVL COUNTDOWN FOR STARTING GAME (UNFREEZE AND SOME INITS)
+	if global.match_running and global.match_countdown >=0 and tick % 3 == 0 then
+		game.speed=0.05 --EVL Slow down the game speed during countdowns
+		show_countdown(global.match_countdown)
+		global.match_countdown = global.match_countdown - 1
+		--CLOSE THE FRAMES WHEN DONE
+		if global.match_countdown < 0 then
+			for _, player in pairs(game.connected_players) do		
+				if player.gui.center["bbc_cdf"] then	player.gui.center["bbc_cdf"].destroy() end
+			end
+			-- EVL SET global.next_attack = "north" / "south" and global.main_attack_wave_amount=0 --DEBUG--
+			global.freeze_players = false
+			Team_manager.unfreeze_players()
+
+			--game.tick_paused=false --EVL Not that easy (see team_manager.lua)
+			game.speed=1 --EVL back to normal speed
+			game.print(">>>>> Players & Biters have been unfrozen !", {r = 255, g = 77, b = 77})
+		end
 	end
 end
 
@@ -200,10 +330,6 @@ local function on_chunk_generated(event)
 	-- sure everything is cloned properly. Normally we would use mutex
 	-- but this is not reliable in this environment.
 	Mirror_terrain.clone(event)
-
-	if event.position.y == 0 and event.position.x == 1 then
-		Terrain.add_holiday_decorations(surface)
-	end
 end
 
 local function on_entity_cloned(event)
@@ -259,48 +385,6 @@ local function on_rocket_launch_ordered(event)
 			inventory.clear()
 		end
 	end
-end
-
-local function clear_corpses(cmd)
-	local player = game.player
-        local trusted = Session.get_trusted_table()
-        local param = tonumber(cmd.parameter)
-
-        if not player or not player.valid then
-            return
-        end
-        if param == nil then
-            player.print('[ERROR] Must specify radius!', Color.fail)
-            return
-        end
-        if not trusted[player.name] and not player.admin and param > 100 then
-				player.print('[ERROR] Value is too big. Max radius is 100', Color.fail)
-				return
-        end
-        if param < 0 then
-            player.print('[ERROR] Value is too low.', Color.fail)
-            return
-        end
-        if param > 500 then
-            player.print('[ERROR] Value is too big.', Color.fail)
-            return
-        end
-
-	if not Ai.empty_reanim_scheduler() then
-		player.print("[ERROR] Some corpses are waiting to be reanimated...")
-		player.print(" => Try again in short moment")
-		return
-	end
-
-        local pos = player.position
-
-        local radius = {{x = (pos.x + -param), y = (pos.y + -param)}, {x = (pos.x + param), y = (pos.y + param)}}
-        for _, entity in pairs(player.surface.find_entities_filtered {area = radius, type = 'corpse'}) do
-            if entity.corpse_expires then
-                entity.destroy()
-            end
-        end
-        player.print('Cleared biter-corpses.', Color.success)
 end
 
 local function on_init()

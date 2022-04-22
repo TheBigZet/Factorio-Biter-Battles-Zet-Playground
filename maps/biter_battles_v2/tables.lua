@@ -31,10 +31,11 @@ Public.upgrade_modifiers = {
 
 Public.food_values = {
 	["firearm-magazine"] =		{value = 0.0010, name = "yellow ammo", color = "255, 50, 50"},
-	["stone-wall"] =		{value = 0.0013, name = "wall", color = "50, 255, 50"},
-	["piercing-rounds-magazine"] =		{value = 0.0042, name = "red ammo", color = "105, 105, 105"},
-	["gate"] = 		{value = 0.0085, name = "gates", color = "100, 200, 255"},
-	["gun-turret"] =		{value = 0.0210, name = "gun turret", color = "150, 25, 255"},
+
+	["stone-wall"] =		{value = 0.0020, name = "wall", color = "50, 255, 50"},
+	["piercing-rounds-magazine"] =		{value = 0.0045, name = "red ammo", color = "105, 105, 105"},
+	["gate"] = 		{value = 0.0100, name = "gates", color = "100, 200, 255"},
+	["gun-turret"] =		{value = 0.0150, name = "gun turret", color = "150, 25, 255"},
 	["defender-capsule"] =		{value = 0.0406, name = "capsule bot", color = "210, 210, 60"},
 	["flamethrower-ammo"] = 		{value = 0.1022, name = "flamer ammo", color = "255, 255, 255"},
 }
@@ -111,27 +112,27 @@ Public.spawn_ore = {
 	-- patches of given type. The "density" is applied with the same rule
 	-- regardless of the patch size.
 	["iron-ore"] = {
-		size = 23,
+		size = 15,
 		density = 3500,
 		big_patches = 2,
-		small_patches = 1
+		small_patches = 0
 	},
 	["copper-ore"] = {
-		size = 21,
+		size = 13,
 		density = 3000,
-		big_patches = 1,
-		small_patches = 2
+		big_patches = 2,
+		small_patches = 0
 	},
 	["coal"] = {
-		size = 22,
+		size = 11,
 		density = 2500,
 		big_patches = 1,
-		small_patches = 1
+		small_patches = 0
 	},
 	["stone"] = {
-		size = 20,
+		size = 11,
 		density = 2000,
-		big_patches = 1,
+		big_patches = 2,
 		small_patches = 0
 	}
 }
@@ -151,5 +152,26 @@ Public.forces_list = { "all teams", "north", "south" }
 Public.science_list = { "all science", "very high tier (flamer ammo, defender, turret)", "high tier (flamer ammo, defender, turret, gate)", "mid+ tier (flamer ammo, defender, turret, gate, red ammo)","flamer ammo","defender","turret","gate","red ammo", "wall", "yellow ammo" }
 Public.evofilter_list = { "all evo jump", "no 0 evo jump", "10+ only","5+ only","4+ only","3+ only","2+ only","1+ only" }
 Public.food_value_table_version = { Public.food_values["firearm-magazine"].value, Public.food_values["stone-wall"].value, Public.food_values["piercing-rounds-magazine"].value, Public.food_values["gate"].value, Public.food_values["gun-turret"].value, Public.food_values["defender-capsule"].value, Public.food_values["flamethrower-ammo"].value}
-
+Public.packs_contents = {
+				["raw-fish"]=10,
+				["electric-mining-drill"]=40,
+				["stone-furnace"]=50,
+				["burner-mining-drill"]=20,
+				["small-electric-pole"]=200,
+				["transport-belt"]=400,
+				["copper-cable"]=200,
+				["assembling-machine-1"]=20,
+				["offshore-pump"]=1,
+				["steam-engine"]=10,
+				["boiler"]=5,
+				["burner-inserter"]=5,
+				["pipe"]=20,
+				["pipe-to-ground"]=2,
+				["lab"]=5,
+				["coal"]=600,
+				["inserter"]=50,
+				["pistol"]=1,
+				["firearm-magazine"]=10
+				
+}
 return Public

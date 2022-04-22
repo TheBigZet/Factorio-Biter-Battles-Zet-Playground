@@ -21,7 +21,9 @@ local function force_map_reset(reason)
             game.print(msg, Color.warning)
             Server.to_discord_embed(msg)
             local p = global.rocket_silo["north"].position
+            global.reset_in_progress = true
             global.rocket_silo["north"].die("south_biters")
+            global.server_restart_timer = 5
         end
     end
 end
