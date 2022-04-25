@@ -90,7 +90,7 @@ function Public.initial_setup()
 		surface.delete_chunk({chunk.x, chunk.y})
 	end
 	
-	global.tournament_mode = true -- EVL (none)
+	global.tournament_mode = false -- EVL (none)
 	global.training_mode  = false -- EVL (none)
 end
 
