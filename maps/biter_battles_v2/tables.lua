@@ -124,7 +124,7 @@ Public.spawn_ore = {
 		small_patches = 0
 	},
 	["coal"] = {
-		size = 11,
+		size = 13,
 		density = 2500,
 		big_patches = 1,
 		small_patches = 0
