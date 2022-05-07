@@ -30,9 +30,9 @@ Public.upgrade_modifiers = {
 }
 
 Public.food_values = {
-	["firearm-magazine"] =		{value = 0.0010, name = "yellow ammo", color = "255, 50, 50"},
+	["firearm-magazine"] =		{value = 0.0009, name = "yellow ammo", color = "255, 50, 50"},
 
-	["stone-wall"] =		{value = 0.0020, name = "wall", color = "50, 255, 50"},
+	["stone-wall"] =		{value = 0.0018, name = "wall", color = "50, 255, 50"},
 	["piercing-rounds-magazine"] =		{value = 0.0045, name = "red ammo", color = "105, 105, 105"},
 	["gate"] = 		{value = 0.0100, name = "gates", color = "100, 200, 255"},
 	["gun-turret"] =		{value = 0.0150, name = "gun turret", color = "150, 25, 255"},
@@ -153,7 +153,7 @@ Public.science_list = { "all science", "very high tier (flamer ammo, defender, t
 Public.evofilter_list = { "all evo jump", "no 0 evo jump", "10+ only","5+ only","4+ only","3+ only","2+ only","1+ only" }
 Public.food_value_table_version = { Public.food_values["firearm-magazine"].value, Public.food_values["stone-wall"].value, Public.food_values["piercing-rounds-magazine"].value, Public.food_values["gate"].value, Public.food_values["gun-turret"].value, Public.food_values["defender-capsule"].value, Public.food_values["flamethrower-ammo"].value}
 Public.packs_contents = {
-				["raw-fish"]=10,
+				["raw-fish"]=100,
 				["electric-mining-drill"]=40,
 				["stone-furnace"]=50,
 				["burner-mining-drill"]=20,
@@ -171,7 +171,8 @@ Public.packs_contents = {
 				["coal"]=600,
 				["inserter"]=50,
 				["pistol"]=1,
-				["firearm-magazine"]=10
+				["firearm-magazine"]=10,
+				["grenade"]=10
 				
 }
 return Public
