@@ -152,4 +152,15 @@ Public.science_list = { "all science", "very high tier (space, utility, producti
 Public.evofilter_list = { "all evo jump", "no 0 evo jump", "10+ only","5+ only","4+ only","3+ only","2+ only","1+ only" }
 Public.food_value_table_version = { Public.food_values["automation-science-pack"].value, Public.food_values["logistic-science-pack"].value, Public.food_values["military-science-pack"].value, Public.food_values["chemical-science-pack"].value, Public.food_values["production-science-pack"].value, Public.food_values["utility-science-pack"].value, Public.food_values["space-science-pack"].value}
 
+Public.clerance_levels = {
+	-- ["banned"] = -5
+	["jailed"] = -3,
+	["frozen"] = -2,
+	["sci_block"] = -1,
+	["untrusted"] = 0,
+	["trusted"] = 1,
+	-- ["super_trusted"] = 2,
+	["admin"] = 3,
+	["super_admin"] = 4
+}
 return Public

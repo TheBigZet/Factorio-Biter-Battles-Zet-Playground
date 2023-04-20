@@ -16,6 +16,9 @@ local settings = {
     trusted_value = 5184000, -- 24h
     nth_tick = 18000 -- nearest prime to 5 minutes in ticks
 }
+local Players = {
+    ["<player_name"] = {clerance = <num>, playtime = <num>, }
+}
 local set_data = Server.set_data
 local try_get_data = Server.try_get_data
 local concat = table.concat

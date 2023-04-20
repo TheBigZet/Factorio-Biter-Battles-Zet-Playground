@@ -10,11 +10,23 @@ local Color = require 'utils.color_presets'
 local Server = require 'utils.server'
 local Jail = require 'utils.datastore.jail_data'
 local pool = require 'maps.biter_battles_v2.pool'
-
+local clerance_levels = require 'maps.biter_battles_v2.tables'.clerance_levels
 local Public = {}
 local match = string.match
 local capsule_bomb_threshold = 8
 local de = defines.events
+
+local min_clerance_lvls = {
+    ["use_planners"] = clerance_levels.trusted,
+    ["landfil"] = clerance_levels.trusted,
+    ["vote_jail"] = clerance_levels.trusted,
+    ["jail"] = clerance_levels.super_trusted,
+    ["mute"] = clerance_levels.super_trusted,
+    ["lock_sci"] = clerance_levels.admin,
+    ["freeze"] = clerance_levels.super_trusted,
+    ["ban"] = clerance_levels.admin,
+    
+}
 
 local format = string.format
 local size = 1024
