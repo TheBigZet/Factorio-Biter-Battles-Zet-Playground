@@ -31,7 +31,9 @@ function Gui.uid()
     return Token.uid()
 end
 
--- Associates data with the LuaGuiElement. If data is nil then removes the data
+--- Associates data with the LuaGuiElement. If data is nil then removes the data
+--- @param element LuaGuiElement
+--- @param value any
 function Gui.set_data(element, value)
     local player_index = element.player_index
     local values = data[player_index]
@@ -58,6 +60,7 @@ end
 local set_data = Gui.set_data
 
 -- Gets the Associated data with this LuaGuiElement if any.
+--- @param element LuaGuiElement
 function Gui.get_data(element)
     local player_index = element.player_index
 

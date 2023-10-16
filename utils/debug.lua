@@ -30,8 +30,8 @@ local function cleanup_debug(debug_table)
 end
 
 ---Shows the given message if debug is enabled. Uses serpent to print non scalars.
--- @param message <table|string|number|boolean>
--- @param stack_traceback <number|nil> levels of stack trace to give, defaults to 1 level if nil
+--- @param message LocalisedString
+--- @param trace_levels number? levels of stack trace to give, defaults to 1 level if nil
 function Debug.print(message, trace_levels)
     if not _DEBUG then
         return
@@ -127,7 +127,7 @@ function Debug.object_type(object)
 end
 
 ---Shows the given message if debug is on.
----@param position Position
+---@param position MapPosition
 ---@param message string
 function Debug.print_position(position, message)
     Debug.print(format('%s %s', serialize(position), message))
@@ -142,10 +142,10 @@ function Debug.cheat(callback)
 end
 
 --- Returns true if the function is a closure, false otherwise.
--- A closure is a function that contains 'upvalues' or in other words
--- has a reference to a local variable defined outside the function's scope.
--- @param  func<function>
--- @return boolean
+--- A closure is a function that contains 'upvalues' or in other words
+--- has a reference to a local variable defined outside the function's scope.
+--- @param func function 
+--- @return boolean
 function Debug.is_closure(func)
     local i = 1
     while true do

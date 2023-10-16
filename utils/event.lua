@@ -154,10 +154,10 @@ local function remove(tbl, handler)
 end
 
 --- Register a handler for the event_name event.
--- This function must be called in the control stage or in Event.on_init or Event.on_load.
--- See documentation at top of file for details on using events.
--- @param event_name<number>
--- @param handler<function>
+--- This function must be called in the control stage or in Event.on_init or Event.on_load.
+--- See documentation at top of file for details on using events.
+--- @param event_name number
+--- @param handler function
 function Event.add(event_name, handler)
     if _LIFECYCLE == 8 then
         error('Calling Event.add after on_init() or on_load() has run is a desync risk.', 2)
@@ -167,9 +167,9 @@ function Event.add(event_name, handler)
 end
 
 --- Register a handler for the script.on_init event.
--- This function must be called in the control stage or in Event.on_init or Event.on_load
--- See documentation at top of file for details on using events.
--- @param handler<function>
+--- This function must be called in the control stage or in Event.on_init or Event.on_load
+--- See documentation at top of file for details on using events.
+--- @param handler function
 function Event.on_init(handler)
     if _LIFECYCLE == 8 then
         error('Calling Event.on_init after on_init() or on_load() has run is a desync risk.', 2)
@@ -179,9 +179,9 @@ function Event.on_init(handler)
 end
 
 --- Register a handler for the script.on_load event.
--- This function must be called in the control stage or in Event.on_init or Event.on_load
--- See documentation at top of file for details on using events.
--- @param handler<function>
+--- This function must be called in the control stage or in Event.on_init or Event.on_load
+--- See documentation at top of file for details on using events.
+--- @param handler function
 function Event.on_load(handler)
     if _LIFECYCLE == 8 then
         error('Calling Event.on_load after on_init() or on_load() has run is a desync risk.', 2)
@@ -191,10 +191,10 @@ function Event.on_load(handler)
 end
 
 --- Register a handler for the nth_tick event.
--- This function must be called in the control stage or in Event.on_init or Event.on_load.
--- See documentation at top of file for details on using events.
--- @param tick<number> The handler will be called every nth tick
--- @param handler<function>
+--- This function must be called in the control stage or in Event.on_init or Event.on_load.
+--- See documentation at top of file for details on using events.
+--- @param tick uint The handler will be called every nth tick
+--- @param handler function
 function Event.on_nth_tick(tick, handler)
     if _LIFECYCLE == 8 then
         error('Calling Event.on_nth_tick after on_init() or on_load() has run is a desync risk.', 2)
@@ -204,10 +204,10 @@ function Event.on_nth_tick(tick, handler)
 end
 
 --- Register a token handler that can be safely added and removed at runtime.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  event_name<number>
--- @param  token<number>
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param event_name number
+--- @param token uint
 function Event.add_removable(event_name, token)
     if type(token) ~= 'number' then
         error('token must be a number', 2)
@@ -230,10 +230,10 @@ function Event.add_removable(event_name, token)
 end
 
 --- Removes a token handler for the given event_name.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  event_name<number>
--- @param  token<number>
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param event_name number
+--- @param token number
 function Event.remove_removable(event_name, token)
     if _LIFECYCLE == stage_load then
         error('cannot call during on_load', 2)
@@ -256,12 +256,12 @@ function Event.remove_removable(event_name, token)
 end
 
 --- Register a handler that can be safely added and removed at runtime.
--- The handler must not be a closure, as that is a desync risk.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  event_name<number>
--- @param  func<function>
--- @param  name<string>
+--- The handler must not be a closure, as that is a desync risk.
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param event_name number
+--- @param func function
+--- @param name string
 function Event.add_removable_function(event_name, func, name)
     if _LIFECYCLE == stage_load then
         error('cannot call during on_load', 2)
@@ -306,10 +306,10 @@ function Event.add_removable_function(event_name, func, name)
 end
 
 --- Removes a handler for the given event_name.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  event_name<number>
--- @param  name<string>
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param event_name number
+--- @param name string
 function Event.remove_removable_function(event_name, name)
     if _LIFECYCLE == stage_load then
         error('cannot call during on_load', 2)
@@ -346,10 +346,10 @@ function Event.remove_removable_function(event_name, name)
 end
 
 --- Register a token handler for the nth tick that can be safely added and removed at runtime.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  tick<number>
--- @param  token<number>
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param tick uint
+--- @param token number
 function Event.add_removable_nth_tick(tick, token)
     if _LIFECYCLE == stage_load then
         error('cannot call during on_load', 2)
@@ -372,10 +372,10 @@ function Event.add_removable_nth_tick(tick, token)
 end
 
 --- Removes a token handler for the nth tick.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  tick<number>
--- @param  token<number>
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param tick uint
+--- @param token number
 function Event.remove_removable_nth_tick(tick, token)
     if _LIFECYCLE == stage_load then
         error('cannot call during on_load', 2)
@@ -398,11 +398,11 @@ function Event.remove_removable_nth_tick(tick, token)
 end
 
 --- Register a handler for the nth tick that can be safely added and removed at runtime.
--- The handler must not be a closure, as that is a desync risk.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  tick<number>
--- @param  func<function>
+--- The handler must not be a closure, as that is a desync risk.
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param tick uint
+--- @param func function
 function Event.add_removable_nth_tick_function(tick, func, name)
     if _LIFECYCLE == stage_load then
         error('cannot call during on_load', 2)
@@ -447,10 +447,10 @@ function Event.add_removable_nth_tick_function(tick, func, name)
 end
 
 --- Removes a handler for the nth tick.
--- Do NOT call this method during on_load.
--- See documentation at top of file for details on using events.
--- @param  tick<number>
--- @param  func<function>
+--- Do NOT call this method during on_load.
+--- See documentation at top of file for details on using events.
+--- @param tick uint
+--- @param func function
 function Event.remove_removable_nth_tick_function(tick, name)
     if _LIFECYCLE == stage_load then
         error('cannot call during on_load', 2)
@@ -495,7 +495,8 @@ function Event.remove_removable_nth_tick_function(tick, name)
 end
 
 --- Generate a new, unique event ID.
--- @param <string> name of the event/variable that is exposed
+--- @param name string name of the event/variable that is exposed
+--- @return uint
 function Event.generate_event_name(name)
     local event_id = generate_event_name()
 
@@ -507,6 +508,7 @@ function Event.generate_event_name(name)
     return event_id
 end
 
+--- @param func function
 function Event.on_configuration_changed(func)
     if type(func) == 'function' then
         script.on_configuration_changed(func)

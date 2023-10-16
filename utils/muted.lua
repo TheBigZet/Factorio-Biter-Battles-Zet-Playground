@@ -6,10 +6,13 @@ local this = {muted = {}}
 
 Global.register(this, function(t) this = t end)
 
+---@param player_name PlayerName
+---@return boolean
 function Public.is_muted(player_name) 
 	return this.muted[player_name] == true 
 end
 
+---@param player LuaPlayer
 function Public.print_muted_message(player)
     player.print(
         "Did you spam pings or verbally grief? You seem to have been muted." ..

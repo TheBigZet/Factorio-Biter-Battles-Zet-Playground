@@ -1,6 +1,8 @@
 local Public = {}
 
--- Get the mean value of a table
+--- Get the mean value of a table
+---@param t table
+---@return number
 function Public.mean(t)
     local sum = 0
     local count = 0
@@ -15,8 +17,10 @@ function Public.mean(t)
     return (sum / count)
 end
 
--- Get the mode of a table.  Returns a table of values.
--- Works on anything (not just numbers).
+--- Get the mode of a table.  Returns a table of values.
+--- Works on anything (not just numbers).
+--- @param t table
+--- @return table
 function Public.mode(t)
     local counts = {}
 
@@ -47,7 +51,9 @@ function Public.mode(t)
     return temp
 end
 
--- Get the median of a table.
+--- Get the median of a table.
+--- @param t table
+--- @return number
 function Public.median(t)
     local temp = {}
 
@@ -71,7 +77,9 @@ function Public.median(t)
     end
 end
 
--- Get the standard deviation of a table
+--- Get the standard deviation of a table
+--- @param t table
+--- @return number
 function Public.standardDeviation(t)
     local m
     local vm
@@ -94,7 +102,9 @@ function Public.standardDeviation(t)
     return result
 end
 
--- Get the max and min for a table
+--- Get the max and min for a table
+--- @param t table
+--- @return number, number
 function Public.maxmin(t)
     local max = -math.huge
     local min = math.huge

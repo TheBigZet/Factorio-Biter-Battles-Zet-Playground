@@ -1,17 +1,27 @@
 local Module = {}
 
+---@param pos1 MapPosition
+---@param pos2 MapPosition
+---@return number
 Module.distance = function(pos1, pos2)
     local dx = pos2.x - pos1.x
     local dy = pos2.y - pos1.y
     return math.sqrt(dx * dx + dy * dy)
 end
 
--- rounds number (num) to certain number of decimal places (idp)
+--- rounds number (num) to certain number of decimal places (idp)
+---@param num number
+---@param idp integer
+---@return number
 math.round = function(num, idp)
     local mult = 10 ^ (idp or 0)
     return math.floor(num * mult + 0.5) / mult
 end
 
+---@param num number
+---@param min number
+---@param max number
+---@return number
 function math.clamp(num, min, max)
     if num < min then
         return min
@@ -22,6 +32,8 @@ function math.clamp(num, min, max)
     end
 end
 
+---@param msg LocalisedString
+---@param player LuaPlayer
 Module.print_except = function(msg, player)
     for _, p in pairs(game.players) do
         if p.connected and p ~= player then
@@ -30,6 +42,7 @@ Module.print_except = function(msg, player)
     end
 end
 
+---@param msg LocalisedString
 Module.print_admins = function(msg)
     for _, p in pairs(game.players) do
         if p.connected and p.admin then
@@ -53,8 +66,11 @@ Module.cast_bool = function(var)
     end
 end
 
-Module.find_entities_by_last_user =
-    function(player, surface, filters)
+---@param player LuaPlayer | uint
+---@param surface LuaSurface | uint
+---@param filters LuaSurface.find_entities_filtered_param
+---@return LuaEntity[]?
+Module.find_entities_by_last_user = function(player, surface, filters)
     if type(player) == 'string' or not player then
         error(
             "bad argument #1 to '" ..
@@ -128,6 +144,8 @@ Module.format_time = function(ticks)
     return table.concat(result, ' ')
 end
 
+---@param element LuaGuiElement
+---@param attributes LuaStyle
 Module.gui_style = function(element, attributes)
     for attribute, value in pairs(attributes) do
         element.style[attribute] = value

@@ -8,8 +8,8 @@ local pairs = pairs
 local table_size = table_size
 
 --- Searches a table to remove a specific element without an index
--- @param t <table> to search
--- @param <any> table element to search for
+--- @param t table to search
+--- @param element any table element to search for
 function table.remove_element(t, element)
     for k, v in pairs(t) do
         if v == element then
@@ -20,9 +20,9 @@ function table.remove_element(t, element)
 end
 
 --- Removes an item from an array in O(1) time.
--- The catch is that fast_remove doesn't guarantee to maintain the order of items in the array.
--- @param tbl <table> arrayed table
--- @param index <number> Must be >= 0. The case where index > #tbl is handled.
+--- The catch is that fast_remove doesn't guarantee to maintain the order of items in the array.
+--- @param tbl table arrayed table
+--- @param index uint Must be >= 0. The case where index > #tbl is handled.
 function table.fast_remove(tbl, index)
     local count = #tbl
     if index > count then
@@ -35,8 +35,8 @@ function table.fast_remove(tbl, index)
 end
 
 --- Adds the contents of table t2 to table t1
--- @param t1 <table> to insert into
--- @param t2 <table> to insert from
+--- @param t1 table to insert into
+--- @param t2 table to insert from
 function table.add_all(t1, t2)
     for k, v in pairs(t2) do
         if tonumber(k) then
@@ -48,9 +48,9 @@ function table.add_all(t1, t2)
 end
 
 --- Checks if a table contains an element
--- @param t <table>
--- @param e <any> table element
--- @returns <any> the index of the element or nil
+--- @param t table table
+--- @param e any table element
+--- @return any #the index of the element or nil
 function table.index_of(t, e)
     for k, v in pairs(t) do
         if v == e then
@@ -61,9 +61,9 @@ function table.index_of(t, e)
 end
 
 --- Checks if the arrayed portion of a table contains an element
--- @param t <table>
--- @param e <any> table element
--- @returns <number|nil> the index of the element or nil
+--- @param t table table
+--- @param e any table element
+--- @return uint? #the index of the element or nil
 function table.index_of_in_array(t, e)
     for i = 1, #t do
         if t[i] == e then
@@ -75,26 +75,27 @@ end
 
 local index_of = table.index_of
 --- Checks if a table contains an element
--- @param t <table>
--- @param e <any> table element
--- @returns <boolean> indicating success
+--- @param t table table
+--- @param e any table element
+--- @return boolean #indicating success
 function table.contains(t, e)
     return index_of(t, e) and true or false
 end
 
 local index_of_in_array = table.index_of_in_array
 --- Checks if the arrayed portion of a table contains an element
--- @param t <table>
--- @param e <any> table element
--- @returns <boolean> indicating success
+--- @param t table table
+--- @param e any table element
+--- @return boolean #indicating success
 function table.array_contains(t, e)
     return index_of_in_array(t, e) and true or false
 end
 
---- Adds an element into a specific index position while shuffling the rest down
--- @param t <table> to add into
--- @param index <number> the position in the table to add to
--- @param element <any> to add to the table
+--- Adds an element into a specific index position while shuffling the rest down.
+--- So the same as `table.insert()?` ~TheBigZet
+--- @param t table table to add into
+--- @param index uint the position in the table to add to
+--- @param element any to add to the table
 function table.set(t, index, element)
     local i = 1
     for k in pairs(t) do
@@ -108,7 +109,8 @@ function table.set(t, index, element)
 end
 
 --- Returns an array of keys for a table.
---@param tbl <table>
+--- @param tbl table table
+--- @return any[] #array of keys
 function table.keys(tbl)
     local n = 1
     local keys = {}
@@ -122,10 +124,10 @@ function table.keys(tbl)
 end
 
 --- Chooses a random entry from a table
--- because this uses math.random, it cannot be used outside of events
--- @param t <table>
--- @param key <boolean> to indicate whether to return the key or value
--- @return <any> a random element of table t
+--- because this uses math.random, it cannot be used outside of events
+--- @param t table table
+--- @param key boolean to indicate whether to return the key or value
+--- @return any #a random element of table t
 function table.get_random_dictionary_entry(t, key)
     local target_index = random(1, table_size(t))
     local count = 1
@@ -142,12 +144,12 @@ function table.get_random_dictionary_entry(t, key)
 end
 
 --- Chooses a random entry from a weighted table
--- because this uses math.random, it cannot be used outside of events
--- @param weighted_table <table> of tables with items and their weights
--- @param item_index <number> of the index of items, defaults to 1
--- @param weight_index <number> of the index of the weights, defaults to 2
--- @return <any> table element
--- @see features.chat_triggers::hodor
+--- because this uses math.random, it cannot be used outside of events
+--- @param weighted_table table table of tables with items and their weights
+--- @param item_index number of the index of items, defaults to 1
+--- @param weight_index number of the index of the weights, defaults to 2
+--- @return any #table element
+--- @see features.chat_triggers::hodor
 function table.get_random_weighted(weighted_table, item_index, weight_index)
     local total_weight = 0
     item_index = item_index or 1
@@ -168,9 +170,10 @@ function table.get_random_weighted(weighted_table, item_index, weight_index)
 end
 
 --- Returns a table with % chance values for each item of a weighted_table
--- @param weighted_table <table> of tables with items and their weights
--- @param item_index <number> of the index of items, defaults to 1
--- @param weight_index <number> of the index of the weights, defaults to 2
+--- @param weighted_table table of tables with items and their weights
+--- @param item_index number of the index of items, defaults to 1
+--- @param weight_index number of the index of the weights, defaults to 2
+--- @return table
 function table.get_random_weighted_chances(weighted_table, item_index, weight_index)
     local total_weight = 0
     item_index = item_index or 1
@@ -186,9 +189,9 @@ function table.get_random_weighted_chances(weighted_table, item_index, weight_in
 end
 
 --- Creates a fisher-yates shuffle of a sequential number-indexed table
--- because this uses math.random, it cannot be used outside of events if no rng is supplied
--- from: http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
--- @param t <table> to shuffle
+--- because this uses math.random, it cannot be used outside of events if no rng is supplied
+--- @see from http://www.sdknews.com/cross-platform/corona/tutorial-how-to-shuffle-table-items
+--- @param t table table to shuffle
 function table.shuffle_table(t, rng)
     local rand = rng or math.random
     local iterations = #t
@@ -205,8 +208,8 @@ function table.shuffle_table(t, rng)
 end
 
 --- Clears all existing entries in a table
--- @param t <table> to clear
--- @param array <boolean> to indicate whether the table is an array or not
+--- @param t table table to clear
+--- @param array boolean to indicate whether the table is an array or not
 function table.clear_table(t, array)
     if array then
         for i = 1, #t do
@@ -295,9 +298,6 @@ table.merge = util.merge
 -- @return <boolean>
 table.equals = table.compare
 
---- Gets the median value out of a table.
--- @param tbl1 <table>
--- @return <int>
 table.mean = Stats.mean
 
 return table
