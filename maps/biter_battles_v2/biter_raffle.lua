@@ -3,86 +3,123 @@ local math_random = math.random
 local math_floor = math.floor
 local math_max = math.max
 
+
+---@alias  BiterRaffle.SIZE_SMALL 1
+---@alias  BiterRaffle.SIZE_MEDIUM 2
+---@alias  BiterRaffle.SIZE_BIG 3
+---@alias  BiterRaffle.SIZE_BEHEMOTH 4
+
+---@alias  BiterRaffle.TYPE_BITER 1
+---@alias  BiterRaffle.TYPE_SPITTER 2
+---@alias  BiterRaffle.TYPE_WORM 3
+---@alias  BiterRaffle.TYPE_MIXED 4
+
+---@alias BiterRaffle.RaffleTable { BiterRaffle.SIZE_SMALL: number, BiterRaffle.SIZE_MEDIUM: number, BiterRaffle.SIZE_BIG: number, BiterRaffle.SIZE_BEHEMOTH: number}
+---@alias BiterRaffle.EnemyTable table<BiterRaffle.TYPE_BITER|BiterRaffle.TYPE_SPITTER|BiterRaffle.TYPE_WORM, table<BiterRaffle.SIZE_SMALL|BiterRaffle.SIZE_MEDIUM|BiterRaffle.SIZE_BIG|BiterRaffle.SIZE_BEHEMOTH, string>>
+
+---@type BiterRaffle.EnemyTable
+local ENEMY = {
+    {
+        'small-biter',
+        'medium-biter',
+        'big-biter',
+        'behemoth-biter',
+    },
+    {
+        'small-spitter',
+        'medium-spitter',
+        'big-spitter',
+        'behemoth-spitter',
+    },
+    {
+        'small-worm-turret',
+        'medium-worm-turret',
+        'big-worm-turret',
+        'behemoth-worm-turret',
+    },
+}
+
+---@return BiterRaffle.RaffleTable
 local function get_raffle_table(level)
     if level < 500 then
         return {
-            ['small-'] = 1000 - level * 1.75,
-            ['medium-'] = math_max(-250 + level * 1.5, 0), -- only this one can be negative for level < 500
-            ['big-'] = 0,
-            ['behemoth-'] = 0,
+            1000 - level * 1.75,
+            math_max(-250 + level * 1.5, 0), -- only this one can be negative for level < 500
+            0,
+            0,
         }
     end
     if level < 900 then
         return {
-            ['small-'] = math_max(1000 - level * 1.75, 0), -- only this one can be negative for level < 900
-            ['medium-'] = 1000 - level,
-            ['big-'] = (level - 500) * 2,
-            ['behemoth-'] = 0,
+            math_max(1000 - level * 1.75, 0), -- only this one can be negative for level < 900
+            1000 - level,
+            (level - 500) * 2,
+            0,
         }
     end
     return {
-        ['small-'] = 0,
-        ['medium-'] = math_max(1000 - level, 0),
-        ['big-'] = (level - 500) * 2,
-        ['behemoth-'] = (level - 900) * 8,
+        0,
+        math_max(1000 - level, 0),
+        (level - 500) * 2,
+        (level - 900) * 8,
     }
 end
 
+---@return BiterRaffle.SIZE_SMALL | BiterRaffle.SIZE_MEDIUM | BiterRaffle.SIZE_BIG | BiterRaffle.SIZE_BEHEMOTH
 local function roll(evolution_factor)
     local raffle = get_raffle_table(math_floor(evolution_factor * 1000))
-    local r = math_random(0, math_floor(raffle['small-'] + raffle['medium-'] + raffle['big-'] + raffle['behemoth-']))
+    local r = math_random(0, math_floor(raffle[1] + raffle[2] + raffle[3] + raffle[4]))
     local current_chance = 0
-    for k, v in pairs(raffle) do
-        current_chance = current_chance + v
+    for i=1,4,1 do
+        current_chance = current_chance + raffle[i]
         if r <= current_chance then
-            return k
+            return i
         end
     end
 end
 
 local function get_biter_name(evolution_factor)
-    return roll(evolution_factor) .. 'biter'
+    return ENEMY[1][roll(evolution_factor)]
 end
 
 local function get_spitter_name(evolution_factor)
-    return roll(evolution_factor) .. 'spitter'
+    return ENEMY[2][roll(evolution_factor)]
 end
 
 local function get_worm_raffle_table(level)
-    local raffle = {
-        ['small-worm-turret'] = 1000 - level * 1.75,
-        ['medium-worm-turret'] = level,
-        ['big-worm-turret'] = 0,
-        ['behemoth-worm-turret'] = 0,
+    if level < 500 then
+        return {
+            1000 - level * 1.75,
+            level,
+            0,
+            0,
+        }
+    end
+    if level < 900 then
+        return {
+            math_max(1000 - level * 1.75, 0),
+            1000 - level,
+            (level - 500) * 2,
+            0,
+        }
+    end
+    return {
+        math_max(1000 - level * 1.75, 0),
+        math_max(1000 - level, 0),
+        (level - 500) * 2,
+        (level - 900) * 3,
     }
-
-    if level > 500 then
-        raffle['medium-worm-turret'] = 500 - (level - 500)
-        raffle['big-worm-turret'] = (level - 500) * 2
-    end
-    if level > 900 then
-        raffle['behemoth-worm-turret'] = (level - 900) * 3
-    end
-    for k, _ in pairs(raffle) do
-        if raffle[k] < 0 then
-            raffle[k] = 0
-        end
-    end
-    return raffle
 end
 
+---@return string
 local function get_worm_name(evolution_factor)
     local raffle = get_worm_raffle_table(math_floor(evolution_factor * 1000))
-    local max_chance = 0
-    for _, v in pairs(raffle) do
-        max_chance = max_chance + v
-    end
-    local r = math_random(0, math_floor(max_chance))
+    local r = math_random(0, math_floor(raffle[1] + raffle[2] + raffle[3] + raffle[4]))
     local current_chance = 0
-    for k, v in pairs(raffle) do
-        current_chance = current_chance + v
+    for i=1,4,1 do
+        current_chance = current_chance + raffle[i]
         if r <= current_chance then
-            return k
+            return ENEMY[3][i]
         end
     end
 end
@@ -96,13 +133,13 @@ local function get_unit_name(evolution_factor)
 end
 
 local type_functions = {
-    ['spitter'] = get_spitter_name,
-    ['biter'] = get_biter_name,
-    ['mixed'] = get_unit_name,
-    ['worm'] = get_worm_name,
+    get_biter_name,
+    get_spitter_name,
+    get_worm_name,
+    get_unit_name,
 }
 
----@param entity_type 'spitter'|'biter'|'mixed'|'worm'
+---@param entity_type BiterRaffle.TYPE_BITER|BiterRaffle.TYPE_SPITTER|BiterRaffle.TYPE_WORM|BiterRaffle.TYPE_MIXED
 ---@param evolution_factor number?
 ---@return string?
 function Public.roll(entity_type, evolution_factor)

@@ -11,7 +11,9 @@ local AiTargets = require('maps.biter_battles_v2.ai_targets')
 local math_random = math.random
 local math_floor = math.floor
 
-local unit_type_raffle = { 'biter', 'mixed', 'mixed', 'spitter', 'spitter' }
+---@see biter_raffle.lua:12
+---@type (BiterRaffle.TYPE_BITER|BiterRaffle.TYPE_SPITTER|BiterRaffle.TYPE_WORM|BiterRaffle.TYPE_MIXED)[]
+local unit_type_raffle = { 1, 4, 4, 2, 2 }
 local size_of_unit_type_raffle = #unit_type_raffle
 
 local threat_values = {
