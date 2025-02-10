@@ -28,22 +28,18 @@ local function get_corpse_force(corpse)
 end
 
 local function destroy_all_tags()
-    for _, force in pairs(game.forces) do
-        for _, surface in pairs(game.surfaces) do
-            for _, tag in pairs(force.find_chart_tags(surface)) do
-                if is_tag_valid(tag) then
-                    tag.destroy()
-                end
+    for _, force_name in pairs({'south', 'north'}) do --other forces shouldn't have any tags
+        for _, tag in pairs(game.forces[force_name].find_chart_tags(game.surfaces[storage.bb_surface_name])) do --only the current surface should interest us
+            if is_tag_valid(tag) then
+                tag.destroy()
             end
         end
     end
 end
 
 local function redraw_all_tags()
-    for _, surface in pairs(game.surfaces) do
-        for _, corpse in pairs(surface.find_entities_filtered({ name = 'character-corpse' })) do
-            draw_map_tag(corpse.surface, get_corpse_force(corpse), corpse.position)
-        end
+    for _, corpse in pairs(game.surfaces[storage.bb_surface_name].find_entities_filtered({ name = 'character-corpse' })) do
+        draw_map_tag(corpse.surface, get_corpse_force(corpse), corpse.position)
     end
 end
 
