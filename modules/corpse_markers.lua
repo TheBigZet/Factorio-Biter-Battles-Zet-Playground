@@ -28,7 +28,7 @@ local function get_corpse_force(corpse)
 end
 
 local function destroy_all_tags()
-    for _, force_name in pairs({'south', 'north'}) do --other forces shouldn't have any tags
+    for _, force_name in pairs({ 'south', 'north' }) do --other forces shouldn't have any tags
         for _, tag in pairs(game.forces[force_name].find_chart_tags(game.surfaces[storage.bb_surface_name])) do --only the current surface should interest us
             if is_tag_valid(tag) then
                 tag.destroy()
