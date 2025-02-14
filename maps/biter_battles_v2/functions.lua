@@ -584,6 +584,9 @@ function Functions.show_intro(player)
     local frame = ClosableFrame.create_main_closable_frame(player, 'map_intro_frame', '-- Biter Battles --')
 
     local scroll = frame.add({ type = 'scroll-pane' })
+    local flow = scroll.add({ type = 'flow', direction = 'horizontal' })
+    flow.add({ type = 'label', caption = '[font=default-semibold]Join us on [color=purple]Discord[/color]:[/font]' })
+    flow.add({ type = 'textfield', text = 'https://discord.gg/ZsNNTcPfXm' })
     local label =
         scroll.add({ type = 'label', caption = { 'biter_battles.map_info' }, name = 'biter_battles_map_intro' })
     gui_style(label, { single_line = false, font_color = { 255, 255, 255 } })
