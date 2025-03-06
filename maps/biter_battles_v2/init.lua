@@ -154,6 +154,7 @@ function Public.initial_setup()
         ['automatic_captain'] = true,
         ['map_reroll'] = true,
         ['burners_balance'] = true,
+        ['storage.bb_settings'] = false,
     }
     storage.gui_theme = {}
     storage.want_pings = {}

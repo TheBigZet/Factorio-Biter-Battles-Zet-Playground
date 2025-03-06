@@ -8,6 +8,7 @@ local Utils = require('utils.core')
 local Gui = require('utils.gui')
 local GUI_THEMES = require('utils.utils').GUI_THEMES
 local index_of = table.index_of
+local BitersExtraDamage = require('modules.biters_extra_damage')
 
 local spaghett_entity_blacklist = {
     ['logistic-chest-requester'] = true,
@@ -228,6 +229,17 @@ local functions = {
         else
             storage.bb_settings.burners_balance = false
             game.print('Burners balance is disabled!')
+        end
+    end,
+    ['bb_extra_biter_damage_toggle'] = function(event)
+        if event.element.switch_state == 'left' then
+            storage.bb_settings.extra_biter_damage = true
+            BitersExtraDamage.enable()
+            game.print('Extra biter damage is enabled!')
+        else
+            storage.bb_settings.extra_biter_damage = false
+            BitersExtraDamage.disable()
+            game.print('Extra biter damage is disabled!')
         end
     end,
 }
@@ -659,6 +671,21 @@ local build_config_gui = function(player, frame)
                 'bb_burners_balance_toggle',
                 'Burners balance',
                 'Enables Burners balance.'
+            )
+            if not admin then
+                switch.ignored_by_interaction = true
+            end
+
+            local switch_state = 'right'
+            if storage.bb_settings.extra_biter_damage then
+                switch_state = 'left'
+            end
+            local switch = add_switch(
+                scroll_pane,
+                switch_state,
+                'bb_extra_biter_damage_toggle',
+                'Extra biter damage',
+                'Enables Extra biter damage in endgame.'
             )
             if not admin then
                 switch.ignored_by_interaction = true
