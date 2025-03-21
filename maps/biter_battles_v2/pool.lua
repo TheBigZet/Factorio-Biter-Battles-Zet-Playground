@@ -30,4 +30,20 @@ function mod.enlarge(memory, offset, bytes)
     return memory
 end
 
+--- nested localised string ready for concat
+--- number of available entries: 19^depth
+local function localised_string_recursive(depth)
+    if depth > 10
+        -- be reasonable
+        log("Capping nested LocalisedString depth to 10")
+        depth = 10
+    end
+    local t = {'', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,}
+    if depth > 1 then
+        for i = 2, 20, 1 do
+            t[i] = localised_string_recursive(depth-1)
+        end
+    end
+    return t
+end
 return mod
