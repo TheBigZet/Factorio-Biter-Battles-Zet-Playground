@@ -138,28 +138,28 @@ local hours_to_ticks = 60 * 60 * 60
 local ticks_to_minutes = 1 / minutes_to_ticks
 local ticks_to_hours = 1 / hours_to_ticks
 Module.format_time = function(ticks)
-    local result = {}
+    local result = {'', '', '', ''}
 
     local hours = math.floor(ticks * ticks_to_hours)
     if hours > 0 then
         ticks = ticks - hours * hours_to_ticks
-        table.insert(result, hours)
+        result[1] = hours
         if hours == 1 then
-            table.insert(result, 'hour')
+            result[2] = ' hour '
         else
-            table.insert(result, 'hours')
+            result[2] = ' hours '
         end
     end
 
     local minutes = math.floor(ticks * ticks_to_minutes)
-    table.insert(result, minutes)
+    result[3] = minutes
     if minutes == 1 then
-        table.insert(result, 'minute')
+        result[4] = ' minute'
     else
-        table.insert(result, 'minutes')
+        result[4] = ' minutes'
     end
 
-    return table.concat(result, ' ')
+    return table.concat(result)
 end
 
 Module.gui_style = function(element, attributes)
