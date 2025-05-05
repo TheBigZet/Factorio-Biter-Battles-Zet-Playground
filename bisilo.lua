@@ -136,20 +136,20 @@ end
 local spawn_trusted_at_vet_silo = 'function(event)
 	local player = game.get_player(event.player_index)
 	if not player.valid then return end
-	local force = player.force.name
-	if force ~= "north" and force ~= "south" then return end
+	local force_name = player.force.name
+	if force_name ~= "north" and force_name ~= "south" then return end
 	local trusted = require("utils.datastore.session_data").get_trusted_table()
 	if not storage.multi_silo then return end
-	if not storage.multi_silo[player.force.name] then return end
+	if not storage.multi_silo[force_name] then return end
 	local silo = 1	
-	if storage.multi_silo[player.force.name][2] then
+	if storage.multi_silo[force_name][2] then
 		if trusted[player.name] then
 			silo = 2
 		end
 	end
-	if not storage.multi_silo[player.force.name][silo] then return end
-	if not storage.multi_silo[player.force.name][silo].valid then return end
-	local position = storage.multi_silo[player.force.name][silo].position
+	if not storage.multi_silo[force_name][silo] then return end
+	if not storage.multi_silo[force_name][silo].valid then return end
+	local position = storage.multi_silo[force_name][silo].position
 	position.y = position.y*0.8
 	local vet_spawn = player.physical_surface.find_non_colliding_position("character", position, 20, 0.5) 
 	player.teleport(vet_spawn)
