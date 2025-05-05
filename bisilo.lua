@@ -134,12 +134,11 @@ for _, entity in pairs(entities) do
 end
 
 local spawn_trusted_at_vet_silo = 'function(event)
-	local player = game.players[event.player_index]
+	local player = game.get_player(event.player_index)
 	if not player.valid then return end
 	local force = player.force.name
 	if force ~= "north" and force ~= "south" then return end
-	local SessionData = require("utils.datastore.session_data")    
-	local trusted = SessionData.get_trusted_table()
+	local trusted = require("utils.datastore.session_data").get_trusted_table()
 	if not storage.multi_silo then return end
 	if not storage.multi_silo[player.force.name] then return end
 	local silo = 1	
