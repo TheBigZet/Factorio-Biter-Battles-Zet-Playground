@@ -337,16 +337,16 @@ local multi_silo_chart_silos = 'function (event) local chart_silos = nil
 	if not storage.multi_silo then return end
 	local r = 48
 	local surface = game.surfaces[storage.bb_surface_name]
-	local enemy = {
+	local enemy_of = {
 		["north"] = "south",
 		["south"] = "north",
 	}
-	for _, force in pairs({"north", "south"}) do
+	for force, enemy in pairs(enemy_of) do
 		for _, silo in pairs(storage.multi_silo[force]) do
 			if silo.valid then
 				game.forces[force].chart(surface, {{silo.position.x - r, silo.position.y - r}, {silo.position.x + r, silo.position.y + r}})
-				if storage.spy_fish_timeout[enemy[force]] and storage.spy_fish_timeout[enemy[force]] > game.tick then
-					game.forces[enemy[force]].chart(surface, {{silo.position.x - r, silo.position.y - r}, {silo.position.x + r, silo.position.y + r}})
+				if storage.spy_fish_timeout[enemy] and storage.spy_fish_timeout[enemy] > game.tick then
+					game.forces[enemy].chart(surface, {{silo.position.x - r, silo.position.y - r}, {silo.position.x + r, silo.position.y + r}})
 				end
 			end
 		end
