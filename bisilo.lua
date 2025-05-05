@@ -14,12 +14,14 @@ local Event = require "utils.event"
 local Gui = require "maps.biter_battles_v2.gui"
 local AiTargets = require('maps.biter_battles_v2.ai_targets')
 
-storage.multi_silo = {}
-storage.multi_silo["north"]={}
-storage.multi_silo["south"]={}
-
-table.insert(storage.multi_silo["north"], storage.rocket_silo["north"])
-table.insert(storage.multi_silo["south"], storage.rocket_silo["south"])
+storage.multi_silo = {
+	north = {
+		storage.rocket_silo["north"]
+	},
+	south = {
+		storage.rocket_silo["south"]
+	}
+}
 
 surface = game.surfaces[storage.bb_surface_name]
 local area1 = {
