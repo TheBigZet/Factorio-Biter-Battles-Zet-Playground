@@ -39,12 +39,11 @@ local areaT = {
 
 local function _clear_resources(surface, area2)
     local resources = surface.find_entities_filtered({area = area2, type = 'resource',})
-    local i = 0
+    local count = #resources
     for _, res in pairs(resources) do
         res.destroy()
-        i = i + 1
     end
-    return i
+    return count
 end
 
 local limit = 20
