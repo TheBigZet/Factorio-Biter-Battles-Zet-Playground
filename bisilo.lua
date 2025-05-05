@@ -23,7 +23,7 @@ storage.multi_silo = {
 	}
 }
 
-surface = game.surfaces[storage.bb_surface_name]
+local surface = game.surfaces[storage.bb_surface_name]
 local area1 = {
 	left_top = { x = -150, y = -150 },
 	right_bottom = { x = 150, y = 150 },
